@@ -1,0 +1,37 @@
+<p-toolbar
+  styleClass="flex align-items-center justify-content-between shadow-none sticky-toolbar"
+  [style]="{ height: '10vh', border: 'none' }">
+
+  <ng-template pTemplate="start">
+    <button
+      *ngIf="authService.isAuthenticated()"
+      (click)="sidebarVisible = true"
+      class="p-button p-button-rounded p-button-text p-button-plain hover:surface-hover"
+      style="width: 3rem; height: 3rem;"
+      pRipple
+    >
+      <i class="pi pi-bars text-2xl text-primary"></i>
+    </button>
+  </ng-template>
+
+  <ng-template pTemplate="center">
+    <div class="flex align-items-center gap-3">
+      <span class="font-bold text-primary text-2xl">
+        <a class="no-underline text-primary hover:text-primary-600" href="/">Financial Tracker</a>
+      </span>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="end">
+    <div class="flex align-items-center gap-2">
+      <p-button
+        icon="{{ themeService.currentTheme === 'light' ? 'pi pi-moon' : 'pi pi-sun' }}"
+        class="switch-theme-button"
+        pRipple
+        [text]="true"
+        [outlined]="false"
+        [rounded]="true"
+      (click)="changeTheme()"></p-button>
+    </div>
+  </ng-template>
+</p-toolbar>

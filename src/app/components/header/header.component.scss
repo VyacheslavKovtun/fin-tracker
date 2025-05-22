@@ -1,0 +1,13 @@
+.sticky-toolbar {
+    position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--surface-ground);
+  border-bottom: none !important;
+  box-shadow: none !important;
+  transition: box-shadow 0.3s ease;
+}
+
+.sticky-toolbar.scrolled {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}

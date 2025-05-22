@@ -1,0 +1,53 @@
+<div class="grid p-4">
+  <!-- Total Balance Card -->
+  <div class="col-12 md:col-4">
+    <p-card header="Total Balance" class="text-center text-xl">
+      <div class="text-3xl font-semibold text-green-600">
+        ${{ totalBalance }}
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Pie Chart by Category -->
+  <div class="col-12 md:col-4">
+    <p-card header="Spending by Category">
+      <p-chart type="pie" [data]="pieChartData" />
+    </p-card>
+  </div>
+
+  <!-- Line Chart of Monthly Spending -->
+  <div class="col-12 md:col-4">
+    <p-card header="Monthly Spending">
+      <p-chart type="line" [data]="lineChartData" [options]="lineChartOptions" />
+    </p-card>
+  </div>
+
+  <!-- Recent Transactions Table -->
+  <div class="col-12 md:col-6">
+    <p-card header="Recent Transactions">
+      <p-table [value]="transactions.slice(-5)" [responsiveLayout]="'scroll'">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Date</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-t>
+          <tr>
+            <td>${{ t.amount }}</td>
+            <td>{{ t.category }}</td>
+            <td>{{ t.date | date: 'shortDate' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+
+  <!-- Monthly Summary Grid -->
+  <div class="col-12 md:col-6">
+    <p-card header="Monthly Summary">
+      <p-chart type="bar" [data]="monthlySummaryData" [options]="barOptions" />
+    </p-card>
+  </div>
+</div>
