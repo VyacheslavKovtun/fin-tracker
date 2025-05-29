@@ -58,7 +58,7 @@ export class AuthService {
   async tokenAuth(token: string, remember: boolean = false) {
     try {
       let result = await this.http.get<ResponseResult>
-        (this.authApiUrl + '/login/validatetoken/' + token).toPromise();
+        (this.authApiUrl + '/login/token/' + token).toPromise();
   
       if(result?.code == ResponseResultCode.Failed)
         this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: result.message });
@@ -66,14 +66,14 @@ export class AuthService {
       if(result?.code == ResponseResultCode.Success) {
         if(remember) {
           localStorage.setItem(this.TOKEN_NAME, result.value.apiToken);
-          localStorage.setItem('userId', result.value.userId.toString());
+          localStorage.setItem('userId', result.value.id.toString());
 
           sessionStorage.removeItem(this.TOKEN_NAME);
           sessionStorage.removeItem('userId');
         }
         else {
           sessionStorage.setItem(this.TOKEN_NAME, result.value.apiToken);
-          sessionStorage.setItem('userId', result.value.userId.toString());
+          sessionStorage.setItem('userId', result.value.id.toString());
 
           localStorage.removeItem(this.TOKEN_NAME);
           localStorage.removeItem('userId');
@@ -92,7 +92,7 @@ export class AuthService {
 
     try {
       let result = await this.http.post<ResponseResult>
-        (this.authApiUrl + '/login/email', body,
+        (this.authApiUrl + '/login', body,
           { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
   
       if(result?.code == ResponseResultCode.Failed)
@@ -101,14 +101,35 @@ export class AuthService {
       if(result?.code == ResponseResultCode.Success) {
         if(remember) {
           localStorage.setItem(this.TOKEN_NAME, result.value.apiToken);
-          localStorage.setItem('userId', result.value.userId.toString());
+          localStorage.setItem('userId', result.value.id.toString());
         }
         else {
           sessionStorage.setItem(this.TOKEN_NAME, result.value.apiToken);
-          sessionStorage.setItem('userId', result.value.userId.toString());
+          sessionStorage.setItem('userId', result.value.id.toString());
         }
     
         this.router.navigate(['/']);
+      }
+    }
+    catch(err: any) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+      //this.loggerService.error(err.error);
+    }
+  }
+
+  async register(loginData: { name: string, email: string, password: string, preferredCurrencyCode: string }) {
+    let body = JSON.stringify(loginData);
+
+    try {
+      let result = await this.http.post<ResponseResult>
+        (this.authApiUrl + '/register', body,
+          { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
+  
+      if(result?.code == ResponseResultCode.Failed)
+        this.messageService.add({ severity: 'error', summary: 'Register Failed', detail: result.message });
+  
+      if(result?.code == ResponseResultCode.Success) {
+        //CONFIRM EMAIL
       }
     }
     catch(err: any) {
