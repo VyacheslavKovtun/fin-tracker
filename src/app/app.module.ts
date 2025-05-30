@@ -33,6 +33,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { HomeComponent } from './components/home/home.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { RegisterComponent } from './components/register/register.component';
+import { ForgotPasswordComponent } from './components/login/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/login/reset-password/reset-password.component';
 
 
 export function tokenGetter() {
@@ -51,7 +53,9 @@ export function tokenGetter() {
     LoginComponent,
     HomeComponent,
     FooterComponent,
-    RegisterComponent
+    RegisterComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     BrowserModule,

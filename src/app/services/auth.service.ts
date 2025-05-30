@@ -55,38 +55,6 @@ export class AuthService {
     return false;
   }
 
-  async tokenAuth(token: string, remember: boolean = false) {
-    try {
-      let result = await this.http.get<ResponseResult>
-        (this.authApiUrl + '/login/token/' + token).toPromise();
-  
-      if(result?.code == ResponseResultCode.Failed)
-        this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: result.message });
-  
-      if(result?.code == ResponseResultCode.Success) {
-        if(remember) {
-          localStorage.setItem(this.TOKEN_NAME, result.value.apiToken);
-          localStorage.setItem('userId', result.value.id.toString());
-
-          sessionStorage.removeItem(this.TOKEN_NAME);
-          sessionStorage.removeItem('userId');
-        }
-        else {
-          sessionStorage.setItem(this.TOKEN_NAME, result.value.apiToken);
-          sessionStorage.setItem('userId', result.value.id.toString());
-
-          localStorage.removeItem(this.TOKEN_NAME);
-          localStorage.removeItem('userId');
-        }
-        this.router.navigate(['/']);
-      }
-    }
-    catch(err: any) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
-      //this.loggerService.error(err.error);
-    }
-  }
-
   async login(loginData: { email: string, password: string }, remember: boolean = false) {
     let body = JSON.stringify(loginData);
 
@@ -116,6 +84,7 @@ export class AuthService {
       //this.loggerService.error(err.error);
     }
   }
+  
 
   async register(loginData: { name: string, email: string, password: string, preferredCurrencyCode: string }) {
     let body = JSON.stringify(loginData);
@@ -129,12 +98,67 @@ export class AuthService {
         this.messageService.add({ severity: 'error', summary: 'Register Failed', detail: result.message });
   
       if(result?.code == ResponseResultCode.Success) {
-        //CONFIRM EMAIL
+        this.messageService.add({ severity: 'info', summary: 'Confirm Email', detail: 'Confirmation was sent to your email' });
       }
     }
     catch(err: any) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
       //this.loggerService.error(err.error);
+    }
+  }
+
+  async confirmEmail(userId: string, token: string) {
+    try {
+      let result = await this.http.get<{ message: string }>
+        (this.authApiUrl + `/confirm-email?userid=${userId}&token=${token}`,
+          { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
+  
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Email Confirmation',
+        detail: result?.message || 'Email confirmed.'
+      });
+
+      this.router.navigate(['/login']);
+    }
+    catch(err: any) {
+      this.messageService.add({ severity: 'error', summary: 'Confirmation Failed', detail: err.error?.message });
+    }
+  }
+
+  async sendPasswordReset(email: string) {
+    try {
+      let result = await this.http.get<{ message: string }>
+        (this.authApiUrl + `/send-reset-password?email=${email}`,
+          { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
+  
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Password Reset',
+        detail: result?.message || 'Reset link was sent to your email.'
+      });
+    }
+    catch(err: any) {
+      this.messageService.add({ severity: 'error', summary: 'Reset Failed', detail: err.error?.message });
+    }
+  }
+
+  async resetPassword(resetData: { userId: string, token: string, newPassword: string }) {
+    let body = JSON.stringify(resetData);
+
+    try {
+      let result = await this.http.post<{ message: string }>
+        (this.authApiUrl + `/reset-password`, body,
+          { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
+  
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Password Reset',
+        detail: result?.message || 'Password was reset.'
+      });
+    }
+    catch(err: any) {
+      this.messageService.add({ severity: 'error', summary: 'Reset Failed', detail: err.error?.message });
     }
   }
 

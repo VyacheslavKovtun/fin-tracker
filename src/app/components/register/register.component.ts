@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { LoaderService } from '../../services/loader.service';
+import { ResponseResultCode } from '../../models/response-result.model';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +23,12 @@ export class RegisterComponent {
   ) { }
 
   async ngOnInit() {
-
+    this.activatedRoute.queryParams.subscribe(async(p) => {
+      let userId = p['userid'];
+      let emailToken = p['token'];
+      if(userId && emailToken)
+        await this.authService.confirmEmail(userId, emailToken);
+    })
   }
 
   async onRegisterClick() {

@@ -7,4 +7,7 @@ export interface User {
   avatarUrl?: string;
   createdAt: Date;
   updatedAt?: Date;
+
+  isEmailConfirmed: boolean;
+  emailConfirmationToken?: string;
 }

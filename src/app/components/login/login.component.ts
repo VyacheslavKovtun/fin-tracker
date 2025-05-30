@@ -19,27 +19,10 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    private loaderService: LoaderService,
-    private messageService: MessageService,
-    private activatedRoute: ActivatedRoute
+    private loaderService: LoaderService
   ) { }
 
   async ngOnInit() {
-    //this.loaderService.isGlobalLoading = false;
-    
-    this.activatedRoute.queryParams.subscribe(async(p) => {
-      let token = p['token']
-      if(token)
-        await this.tokenAuth(token)
-    })
-  }
-
-  async tokenAuth(token) {
-    this.loaderService.isGlobalLoading = true;
-    
-    await this.authService.tokenAuth(token, false);
-
-    this.loaderService.isGlobalLoading = false;
   }
 
   async onLoginClick() {
