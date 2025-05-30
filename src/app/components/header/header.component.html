@@ -3,9 +3,11 @@
   [style]="{ height: '10vh', border: 'none' }">
 
   <ng-template pTemplate="start">
+    <p-menu #menu [model]="items" [popup]="true" />
+
     <button
       *ngIf="authService.isAuthenticated()"
-      (click)="sidebarVisible = true"
+      (click)="menu.toggle($event)"
       class="p-button p-button-rounded p-button-text p-button-plain hover:surface-hover"
       style="width: 3rem; height: 3rem;"
       pRipple

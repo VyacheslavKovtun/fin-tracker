@@ -13,20 +13,29 @@ import { LoaderService } from '../../services/loader.service';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-
-  subscription = new Subscription();
-
-  @ViewChild('sidebarRef') sidebarRef: Sidebar;
-
-  sidebarVisible: boolean = false;
+  items: MenuItem[] = [
+    {
+      label: 'Profile',
+      items: [
+        {
+          label: 'Settings',
+          icon: 'pi pi-cog',
+          routerLink: '/settings'
+        },
+        {
+          label: 'Logout',
+          icon: 'pi pi-sign-out',
+          command: () => {
+            this.logout();
+          }
+        }
+      ]
+    }
+  ];
 
   constructor(
     protected themeService: ThemeService,
-    protected authService: AuthService,
-
-    private router: Router,
-
-    private loaderService: LoaderService,
+    protected authService: AuthService
   ) {
   }
 
@@ -34,28 +43,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     
   }
 
-  onMenuItemClick(routerLink: string) {
-    this.router.navigate([routerLink]);
-  }
-
-  closeCallback(e): void {
-    this.sidebarRef.close(e);
-  }
-
-  reloadPage() {
-    window.location.reload()
-  }
-
   changeTheme() {
     this.themeService.switchTheme();
   }
 
-  logout(event) {
+  logout() {
     this.authService.logout();
-    this.sidebarRef.close(event);
+    //this.sidebarRef.close(event);
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 }

@@ -19,6 +19,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
+import { MenuModule } from 'primeng/menu';
 import { DropdownModule } from 'primeng/dropdown';
 import { PasswordModule } from 'primeng/password';
 import { DividerModule } from 'primeng/divider';
@@ -83,7 +84,8 @@ export function tokenGetter() {
     DialogModule,
     CalendarModule,
     TableModule,
-    CheckboxModule
+    CheckboxModule,
+    MenuModule,
   ],
   providers: [
     JwtHelperService,
