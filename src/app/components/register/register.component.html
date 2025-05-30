@@ -18,6 +18,18 @@
         <label for="password1" class="block text-900 font-medium mb-2">Password</label>
         <p-password id="password1" [(ngModel)]="password" name="password" placeholder="Enter Password" required [toggleMask]="true" class="password-field"/>
 
+        <label for="currency1" class="block text-900 font-medium mb-2">Preferred Currency</label>
+        <p-dropdown
+          id="currency1"
+          [options]="currencies"
+          [(ngModel)]="selectedCurrency"
+          name="preferredCurrency"
+          optionLabel="name"
+          optionValue="code"
+          placeholder="Select a currency"
+          class="currencies-dropdown">
+        </p-dropdown>
+
         <button pButton pRipple label="Register" class="w-full mt-5" [disabled]="!registerForm.valid" (click)="onRegisterClick()"></button>
     </form>
   </div>
