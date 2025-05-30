@@ -11,3 +11,40 @@
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
+
+.dashboard-container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+::ng-deep .total-sales-card .p-card {
+    border-radius: 0.5rem;
+    height: 9.5rem;
+}
+
+::ng-deep .first-card .p-card {
+    background-color: #ff6b7e;
+}
+
+::ng-deep .second-card .p-card {
+    background-color: #c28cf0;
+}
+
+::ng-deep .third-card .p-card {
+    background-color: #59c1ed;
+}
+
+::ng-deep .fourth-card .p-card {
+    background-color: #7fd6c5;
+}
+
+.recent-added-customers-container {
+    width: 48%;
+}
+
+td {
+    max-width: 8rem;
+    text-overflow: ellipsis;
+    overflow: hidden; 
+    white-space: nowrap;
+}
