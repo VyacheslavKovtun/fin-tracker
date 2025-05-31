@@ -36,7 +36,7 @@ export class RegisterComponent {
         await this.authService.confirmEmail(userId, emailToken);
     });
 
-    this.currencies = await this.currencyService.getAll();
+    this.currencies = await this.currencyService.getAllCurrencies();
   }
 
   async onRegisterClick() {

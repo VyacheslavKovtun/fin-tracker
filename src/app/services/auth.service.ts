@@ -33,13 +33,13 @@ export class AuthService {
   }
 
   get currentUserId() {
-    let userId: number;
+    let userId: string;
 
     if (this.isAuthenticated()) {
-      userId = +localStorage.getItem('userId');
+      userId = localStorage.getItem('userId');
       
-      if(!userId || userId <= 0)
-        userId = +sessionStorage.getItem('userId');
+      if(!userId)
+        userId = sessionStorage.getItem('userId');
     }
 
     return userId;

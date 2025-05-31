@@ -24,12 +24,25 @@ export class UserService extends BaseApiService {
     this.url = this.userApiUrl;
   }
 
-  async getAllCurrencies() {
+  async getAllUsers() {
     return await this.getAll();
   }
 
-  async getUser(id: number) {
-    return await this.getById(id);
+  async getUser(id: string) {
+    try {
+      let responseResult = await this.http.get<ResponseResult>(this.url + `/${id}`).toPromise();
+  
+      if(responseResult.code == ResponseResultCode.Failed)
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: responseResult.message });
+
+      return responseResult.value;
+    }
+    catch (err) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+      //this.loggerService.error(err.error);
+
+      return null;
+    }
   }
 
   async createUser(user: User) {
@@ -40,7 +53,20 @@ export class UserService extends BaseApiService {
     return await this.update(user);
   }
 
-  async deleteUser(id: number) {
-    return await this.delete(id);
+  async deleteUser(id: string) {
+    try {
+      let responseResult = await this.http.delete<ResponseResult>(this.url + `/delete/${id}`).toPromise();
+  
+      if(responseResult.code == ResponseResultCode.Failed)
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: responseResult.message });
+
+      return responseResult.code == ResponseResultCode.Success;
+    }
+    catch (err) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+      //this.loggerService.error(err.error);
+
+      return false;
+    }
   }
 }

@@ -7,6 +7,11 @@ import { CategoryService } from '../../services/category.service';
 import { CurrencyService } from '../../services/currency.service';
 import { TransactionService } from '../../services/transaction.service';
 import { Currency } from '../../models/currency.model';
+import { MessageService } from 'primeng/api';
+import { User } from '../../models/user.model';
+import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-home',
@@ -20,12 +25,15 @@ export class HomeComponent {
     userId: '',
     categoryId: 0,
     amount: 0,
-    currencyCode: '',
+    currencyId: 0,
     date: new Date(),
     notes: ''
   };
   categories: Category[] = [];
   currencies: Currency[] = [];
+
+  currentUser: User;
+  userCurrency: Currency;
 
 
   barStatsLoading = false;
@@ -137,8 +145,11 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
 
   constructor(
     private categoryService: CategoryService,
+    private userService: UserService,
+    private authService: AuthService,
     private currencyService: CurrencyService,
     private transactionService: TransactionService,
+    private messageService: MessageService
   ) {
 
   }
@@ -149,6 +160,8 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
     this.setupLineChart();
     this.setupMonthlySummary();
 
+    this.currentUser = await this.userService.getUser(this.authService.currentUserId);
+
     await this.loadCategories();
     await this.loadCurrencies();
     await this.loadTransactions();
@@ -157,11 +170,14 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
   }
 
   async loadCategories() {
-    this.categories = await this.categoryService.getAll();
+    this.categories = await this.categoryService.getAllCurrencies();
   }
 
   async loadCurrencies() {
-    this.currencies = await this.currencyService.getAll();
+    this.currencies = await this.currencyService.getAllCurrencies();
+
+    this.userCurrency = this.currencies.find(c => c.code == this.currentUser?.preferredCurrencyCode);
+    this.newTransaction.currencyId = this.userCurrency.id;
   }
 
   async loadTransactions() {
@@ -174,11 +190,11 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
 
   resetTransactionForm() {
     this.newTransaction = {
-      id: '',
-      userId: 'current-user-id',
+      id: uuidv4(),
+      userId: this.authService.currentUserId,
       categoryId: null,
       amount: null,
-      currencyCode: 'USD',
+      currencyId: this.userCurrency.id,
       date: new Date(),
       notes: ''
     };
@@ -186,11 +202,14 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
 
   isTransactionValid(): boolean {
     const t = this.newTransaction;
-    return !!(t.amount && t.currencyCode && t.categoryId && t.date);
+    return !!(t.amount && t.categoryId && t.date);
   }
 
-  saveTransaction() {
+  async saveTransaction() {
+    let success = await this.transactionService.createTransaction(this.newTransaction);
 
+    if(success)
+      this.messageService.add({ severity: 'success', summary: 'Created successfully!', detail: 'New Transaction was created' });
 
     this.addTransactionDialogVisible = false;
   }

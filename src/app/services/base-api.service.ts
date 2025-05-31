@@ -21,7 +21,7 @@ export abstract class BaseApiService {
     //this.loggerService = injector.get(LoggerService);
   }
 
-  async getAll() {
+  protected async getAll() {
     try {
       let responseResult = await this.http.get<ResponseResult>(this.url).toPromise();
 
@@ -41,7 +41,7 @@ export abstract class BaseApiService {
     }
   }
 
-  async getById(id: number) {
+  protected async getById(id: number) {
     try {
       let responseResult = await this.http.get<ResponseResult>(this.url + `/${id}`).toPromise();
   
@@ -58,7 +58,7 @@ export abstract class BaseApiService {
     }
   }
 
-  async create(item: any) {
+  protected async create(item: any) {
     try {
       let body = JSON.stringify(item);
   
@@ -79,7 +79,7 @@ export abstract class BaseApiService {
     }
   }
 
-  async update(item: any) {
+  protected async update(item: any) {
     try {
       let body = JSON.stringify(item);
   
@@ -100,7 +100,7 @@ export abstract class BaseApiService {
     }
   }
 
-  async delete(id: number) {
+  protected async delete(id: number) {
     try {
       let responseResult = await this.http.delete<ResponseResult>(this.url + `/delete/${id}`).toPromise();
   

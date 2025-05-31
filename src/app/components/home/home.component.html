@@ -29,10 +29,17 @@
       <input pInputText type="number" [(ngModel)]="newTransaction.amount" id="amount" />
     </div>
 
-    <div class="field">
-      <label for="currencyCode">Currency</label>
-      <input pInputText [(ngModel)]="newTransaction.currencyCode" id="currencyCode" />
-    </div>
+    <!-- <div class="field">
+      <label for="currency">Currency</label>
+      <p-dropdown 
+        [options]="currencies" 
+        [(ngModel)]="newTransaction.currencyId"
+        optionLabel="name" 
+        optionValue="id"
+        placeholder="Select a currency"
+        id="currency"
+      ></p-dropdown>
+    </div> -->
 
     <div class="field">
       <label for="date">Date</label>

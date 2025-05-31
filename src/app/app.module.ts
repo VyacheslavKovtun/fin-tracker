@@ -27,6 +27,7 @@ import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CarouselModule } from 'primeng/carousel';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
 import { LoginComponent } from './components/login/login.component';
@@ -90,6 +91,7 @@ export function tokenGetter() {
     MenuModule,
     SkeletonModule,
     CarouselModule,
+    InputTextareaModule,
   ],
   providers: [
     JwtHelperService,

@@ -3,7 +3,7 @@ export interface Transaction {
   userId: string;
   categoryId: number;
   amount: number;
-  currencyCode: string;
+  currencyId: number;
   date: Date;
   notes?: string;
 }
