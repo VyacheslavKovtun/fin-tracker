@@ -241,6 +241,8 @@ export class HomeComponent implements OnInit {
   async loadDailyExpenses() {
     this.salesTotalsDailyExpenses = await this.dashboardService.getDailyExpenses(this.currentUser.id, this.selectedSalesTotalsInterval);
     this.dailyExpenses = await this.dashboardService.getDailyExpenses(this.currentUser.id, this.selectedDailyExpensesInterval);
+
+    this.initDailyExpensesLineChart();
   }
 
   async loadLastTransactions() {
@@ -261,7 +263,6 @@ export class HomeComponent implements OnInit {
         }
       });
     }
-
   }
 
 

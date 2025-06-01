@@ -33,7 +33,6 @@ export class TransactionService extends BaseApiService {
   }
 
   async createTransaction(transaction: Transaction) {
-    console.log(this.url);
     return await this.create(transaction);
   }
 

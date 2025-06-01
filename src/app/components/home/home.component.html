@@ -203,7 +203,7 @@
   <!-- Income vs Expenses -->
   <div class="col-12 md:col-6">
     <div class="flex w-full">
-      <p-button icon="pi pi-refresh" (onClick)="loadDailyExpenses()"></p-button>
+      <p-button icon="pi pi-refresh" (onClick)="loadMonthlyIncomeExpense()"></p-button>
     </div>
     <p-card header="Income vs Expense">
       <p-chart type="bar" [data]="monthlyIncomeExpensesData" [options]="barOptions"></p-chart>
