@@ -1,6 +1,5 @@
 <p-button label="Add Transaction" icon="pi pi-plus" (onClick)="showAddTransactionDialog()" class="mb-3"></p-button>
 
-
 <p-dialog 
   header="Add Transaction" 
   [(visible)]="addTransactionDialogVisible" 
@@ -59,70 +58,66 @@
 </p-dialog>
 
 
-
-
-
 <div class="total-sales-container w-full flex flex-wrap justify-content-between">
-        <p-card class="total-sales-card first-card col-6 lg:col-6 xl:col-3" [header]="barStat1.desc">
+        <p-card class="total-sales-card first-card col-6 lg:col-6 xl:col-3" header="Income">
             <div class="card mb-0 border-round-md">
                 <div class="flex justify-content-between mb-3">
                     <div class="flex align-items-center">
-                        <p-skeleton *ngIf="barStatsLoading" width="10rem" height="2rem"/>
-                        <span *ngIf="!barStatsLoading" class="block text-white font-medium text-xl">{{barStat1.result}}</span>
+                        <p-skeleton *ngIf="summaryLoading" width="10rem" height="2rem"/>
+                        <span *ngIf="!summaryLoading" class="block text-white font-medium text-xl">{{financialSummary?.totalIncome}}</span>
+                    </div>
+                    <div class="flex align-items-center justify-content-center border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                        <i class="pi pi-dollar text-white text-xl"></i>
+                    </div>
+                </div>
+                <p-skeleton *ngIf="summaryLoading" width="15rem" height="2rem"/>
+            </div>
+        </p-card>
+        <p-card class="total-sales-card second-card col-6 lg:col-6 xl:col-3" header="Expenses">
+            <div class="card mb-0 border-round-md">
+                <div class="flex justify-content-between mb-3">
+                    <div class="flex align-items-center">
+                        <p-skeleton *ngIf="summaryLoading" width="10rem" height="2rem"/>
+                        <span *ngIf="!summaryLoading" class="block text-white font-medium text-xl">{{financialSummary?.totalExpense}}</span>
                     </div>
                     <div class="flex align-items-center justify-content-center border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
                         <i class="pi pi-shopping-cart text-white text-xl"></i>
                     </div>
                 </div>
-                <p-skeleton *ngIf="barStatsLoading" width="15rem" height="2rem"/>
+                <p-skeleton *ngIf="summaryLoading" width="15rem" height="2rem"/>
             </div>
         </p-card>
-        <p-card class="total-sales-card second-card col-6 lg:col-6 xl:col-3" [header]="barStat2.desc">
+        <p-card class="total-sales-card third-card col-6 lg:col-6 xl:col-3" header="Savings">
             <div class="card mb-0 border-round-md">
                 <div class="flex justify-content-between mb-3">
                     <div class="flex align-items-center">
-                        <p-skeleton *ngIf="barStatsLoading" width="10rem" height="2rem"/>
-                        <span *ngIf="!barStatsLoading" class="block text-white font-medium text-xl">{{barStat2.result}}</span>
+                        <p-skeleton *ngIf="summaryLoading" width="10rem" height="2rem"/>
+                        <span *ngIf="!summaryLoading" class="block text-white font-medium text-xl">{{financialSummary?.savings}}</span>
                     </div>
                     <div class="flex align-items-center justify-content-center border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-shopping-cart text-white text-xl"></i>
+                        <i class="pi pi-wallet text-white text-xl"></i>
                     </div>
                 </div>
-                <p-skeleton *ngIf="barStatsLoading" width="15rem" height="2rem"/>
+                <p-skeleton *ngIf="summaryLoading" width="15rem" height="2rem"/>
             </div>
         </p-card>
-        <p-card class="total-sales-card third-card col-6 lg:col-6 xl:col-3" [header]="barStat3.desc">
+        <p-card class="total-sales-card fourth-card col-6 lg:col-6 xl:col-3" header="Savings Rate">
             <div class="card mb-0 border-round-md">
                 <div class="flex justify-content-between mb-3">
                     <div class="flex align-items-center">
-                        <p-skeleton *ngIf="barStatsLoading" width="10rem" height="2rem"/>
-                        <span *ngIf="!barStatsLoading" class="block text-white font-medium text-xl">{{barStat3.result}}</span>
+                        <p-skeleton *ngIf="summaryLoading" width="10rem" height="2rem"/>
+                        <span *ngIf="!summaryLoading" class="block text-white font-medium text-xl">{{financialSummary?.savingsRate}}</span>
                     </div>
                     <div class="flex align-items-center justify-content-center border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-shopping-cart text-white text-xl"></i>
+                        <i class="pi pi-percentage text-white text-xl"></i>
                     </div>
                 </div>
-                <p-skeleton *ngIf="barStatsLoading" width="15rem" height="2rem"/>
+                <p-skeleton *ngIf="summaryLoading" width="15rem" height="2rem"/>
             </div>
         </p-card>
-        <p-card class="total-sales-card fourth-card col-6 lg:col-6 xl:col-3" [header]="barStat4.desc">
-            <div class="card mb-0 border-round-md">
-                <div class="flex justify-content-between mb-3">
-                    <div class="flex align-items-center">
-                        <p-skeleton *ngIf="barStatsLoading" width="10rem" height="2rem"/>
-                        <span *ngIf="!barStatsLoading" class="block text-white font-medium text-xl">{{barStat4.result}}</span>
-                    </div>
-                    <div class="flex align-items-center justify-content-center border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-shopping-cart text-white text-xl"></i>
-                    </div>
-                </div>
-                <p-skeleton *ngIf="barStatsLoading" width="15rem" height="2rem"/>
-            </div>
-        </p-card>
-    </div>
+</div>
 
-
-    <!-- <div class="sales-totals-diagrams w-full flex flex-wrap justify-content-around"> -->
+<div class="sales-totals-diagrams w-full flex flex-wrap justify-content-around">
         <!-- <div class="w-full lg:w-5 xl:w-5 flex flex-wrap justify-content-center overflow-auto mt-4 h-30rem">
             <div class="flex justify-content-between align-items-center w-full">
                 <div class="font-medium text-l">Statistics</div>
@@ -133,54 +128,54 @@
         </div> -->
 
         <!-- lg:w-6 xl:w-6 -->
-        <!-- <div class="w-full flex flex-wrap justify-content-center overflow-auto mt-4 h-33rem">
-            <p-carousel [value]="[totalsDashboardData]" [numVisible]="1" [numScroll]="1" [ngStyle]="{width: '100%'}">
+        <div class="w-full flex flex-wrap justify-content-center overflow-auto mt-4 h-33rem">
+            <p-carousel *ngIf="totalsDashboardData?.length > 0" [value]="totalsDashboardData" [numVisible]="1" [numScroll]="1" [ngStyle]="{width: '100%'}">
                     <ng-template pTemplate="header">
                         <div class="flex justify-content-between align-items-center w-full">
                             <p class="font-medium text-l">Sales Totals</p>
-                            <p-dropdown [options]="intervals" [(ngModel)]="selectedSalesTotalsInterval" placeholder="Select Interval" ></p-dropdown>
+                            <p-dropdown [options]="intervals" [(ngModel)]="selectedSalesTotalsInterval" placeholder="Select Interval" (onChange)="loadTotals()"></p-dropdown>
                         </div>
                     </ng-template>
                     <ng-template let-item pTemplate="item">
                         <div class="border-1 surface-border border-round m-2 p-3">
                             <p-skeleton *ngIf="salesTotalsLoading" class="w-full" height="20rem" />
                             <div *ngIf="!salesTotalsLoading" class="w-full flex flex-column">
-                                <div *ngIf="item.index == 1" class="text-sm">Average sales per day: <span class="text-sm font-bold text-green-500">${{avgAmountStr}}</span></div>
-                                <div *ngIf="item.index == 1" class="text-sm">Average transactions per day: <span class="text-sm font-bold text-green-500">{{avgTransStr}}</span></div>
+                                <div *ngIf="item?.index == 1" class="text-sm">Average expenses per day: <span class="text-sm font-bold text-green-500">${{dailyExpenseAverage?.averageDailyExpense}}</span></div>
+                                <!-- <div *ngIf="item.index == 1" class="text-sm">Average transactions per day: <span class="text-sm font-bold text-green-500">{{avgTransStr}}</span></div> -->
 
                                 <div class="w-full flex flex-row">
                                     <div class="flex flex-column w-6">
-                                        <div *ngIf="item.index == 1" class="flex flex-row justify-content-around mt-3">
+                                        <div *ngIf="item?.index == 1" class="flex flex-row justify-content-around mt-3">
                                             <div class="flex flex-column justify-content-center">
                                                 <div class="font-medium text-center">Transactions</div>
-                                                <div class="font-bold text-center text-green-500">{{salesTotals?.trans}}</div>
-                                            </div> -->
+                                                <div class="font-bold text-center text-green-500">0</div>
+                                            </div>
                                             <!-- <div class="flex flex-column">
                                                 <div class="font-medium text-center">Amount</div>
                                                 <div class="font-bold text-center text-green-500">${{salesTotals?.total}}</div>
                                             </div> -->
-                                        <!-- </div>
+                                        </div>
 
                                         <div class="flex flex-row justify-content-around mt-3">
                                             <div class="flex flex-column w-6 justify-content-center">
-                                                <div class="font-medium text-center">{{item.chartTitle}}</div>
-                                                <p-chart type="pie" [data]="item.chartData" [options]="item.chartOptions" height="15rem" ></p-chart>
+                                                <div class="font-medium text-center">{{item?.chartTitle}}</div>
+                                                <p-chart type="pie" [data]="item?.chartData" [options]="item?.chartOptions" height="15rem" ></p-chart>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="flex w-6">
-                                        <p-table [value]="item.tableData" class="w-full h-15rem overflow-auto" [tableStyle]="{ 'width': '100%' }">
-                                            <ng-template pTemplate="caption"> -->
+                                        <p-table [value]="item?.tableData" class="w-full h-15rem overflow-auto" [tableStyle]="{ 'width': '100%' }">
+                                            <ng-template pTemplate="caption">
                                                 <!-- <div class="font-medium text-gray-700 text-l"></div> -->
-                                                <!-- <div class="flex align-items-center justify-content-between">
-                                                    {{item.tableTitle}}
+                                                 <div class="flex align-items-center justify-content-between">
+                                                    {{item?.tableTitle}}
                             
                                                     <p-dropdown [options]="count" [(ngModel)]="selectedSalesTotalsCount" placeholder="Select Count" ></p-dropdown>
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body" let-row>
                                                 <tr>
-                                                    <td *ngFor="let column of item.tableColumns">{{ row[column] }}</td>
+                                                    <td *ngFor="let column of item?.tableColumns">{{ row[column] }}</td>
                                                 </tr>
                                             </ng-template>
                                         </p-table>
@@ -193,8 +188,8 @@
         </div>
     </div>
 
-    <div class="w-full flex flex-wrap justify-content-around">
-        <div class="w-full h-full lg:w-5 xl:w-5 flex flex-wrap justify-content-between mt-4 shadow-1 h-20rem">
+<div class="w-full flex flex-wrap justify-content-around">
+        <!--<div class="w-full h-full lg:w-5 xl:w-5 flex flex-wrap justify-content-between mt-4 shadow-1 h-20rem">
             <p-skeleton *ngIf="customersLoading" class="w-full" height="20rem" />
 
             <p-table *ngIf="!customersLoading" [value]="customers" class="w-full h-full overflow-auto" [tableStyle]="{ 'width': '100%' }">
@@ -216,38 +211,38 @@
                     </tr>
                 </ng-template>
             </p-table>
-        </div>
+        </div> -->
 
         <div class="w-full h-full lg:w-6 xl:w-6 flex flex-wrap justify-content-between mt-4 shadow-1 h-20rem mb-5">
-            <p-skeleton *ngIf="transactionsLoading" class="w-full" height="20rem" />
+            <p-skeleton *ngIf="lastTransactionsLoading" class="w-full" height="20rem" />
 
-            <p-table *ngIf="!transactionsLoading" [value]="transactions" class="w-full h-full overflow-auto" [tableStyle]="{ 'width': '100%' }">
-                <ng-template pTemplate="caption"> -->
+            <p-table *ngIf="!lastTransactionsLoading" [value]="lastTransactions" class="w-full h-full overflow-auto" [tableStyle]="{ 'width': '100%' }">
+                <ng-template pTemplate="caption">
                     <!-- <div class="font-medium text-gray-700 text-l"></div> -->
-                    <!-- <div class="flex align-items-center justify-content-between">
+                    <div class="flex align-items-center justify-content-between">
                         Recent Transactions
 
                         <span class="flex gap-5">
                             <p-dropdown [options]="count" [(ngModel)]="selectedTransactionsCount" placeholder="Select Count" ></p-dropdown>
-                            <p-dropdown [options]="intervals" [(ngModel)]="selectedTransactionsInterval" placeholder="Select Interval" ></p-dropdown>
-                        </span> -->
-                        <!-- <p-button icon="pi pi-refresh"></p-button> -->
-                    <!-- </div>
+                            <!-- <p-dropdown [options]="intervals" [(ngModel)]="selectedTransactionsInterval" placeholder="Select Interval" ></p-dropdown> -->
+                        </span>
+                        <p-button icon="pi pi-refresh"></p-button>
+                    </div>
                 </ng-template>
                 <ng-template pTemplate="body" let-transaction>
-                    <tr> -->
-                        <!-- <td>{{ transaction.transactionId }}</td> -->
-                        <!-- <td>{{ transaction.transactionNo }}</td>
-                        <td>{{ transaction.customerName }}</td>
-                        <td>{{ transaction.date}}</td>
-                        <td>{{ transaction.time}}</td>
-                        <td>{{ transaction.debit }}$</td>
-                        <td>{{ transaction.profit }}$</td>
+                    <tr>
+                        <!-- <td>{{ transaction.id }}</td> -->
+                        <!-- <td>{{ transaction.userId }}</td> -->
+                        <td>{{ transaction.categoryId }}</td>
+                        <td>{{ transaction.date | date}}</td>
+                        <td>{{ transaction.amount }}$</td>
+                        <td>{{ transaction.currencyId }}</td>
+                        <td>{{ transaction.note }}</td>
                     </tr>
                 </ng-template>
             </p-table>
         </div>
-    </div> -->
+</div> 
 
 
 
@@ -282,7 +277,7 @@
 
   <!-- Line Chart of Monthly Spending -->
   <div class="col-12 md:col-4">
-    <p-card header="Monthly Spending">
+    <p-card header="Daily Expenses">
       <p-chart type="line" [data]="lineChartData" [options]="lineChartOptions" />
     </p-card>
   </div>
@@ -290,7 +285,7 @@
   <!-- Recent Transactions Table -->
   <div class="col-12 md:col-6">
     <p-card header="Recent Transactions">
-      <p-table [value]="transactions2.slice(-5)" [responsiveLayout]="'scroll'">
+      <p-table [value]="lastTransactions.slice(-5)" [responsiveLayout]="'scroll'">
         <ng-template pTemplate="header">
           <tr>
             <th>Amount</th>
@@ -301,7 +296,7 @@
         <ng-template pTemplate="body" let-t>
           <tr>
             <td>${{ t.amount }}</td>
-            <td>{{ t.category }}</td>
+            <td>{{ t.categoryId }}</td>
             <td>{{ t.date | date: 'shortDate' }}</td>
           </tr>
         </ng-template>

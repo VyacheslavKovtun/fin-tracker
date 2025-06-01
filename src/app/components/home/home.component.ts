@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Category } from '../../models/category.model';
 import { Transaction } from '../../models/transaction.model';
@@ -12,13 +12,20 @@ import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { v4 as uuidv4 } from 'uuid';
+import { DailyExpense } from '../../models/daily-expense.model';
+import { DashboardService } from '../../services/dashboard.service';
+import { FinancialSummary } from '../../models/financial-summary.model';
+import { ExpenseCategorySummary } from '../../models/expense-category-summary.model';
+import { MonthlyBalance } from '../../models/monthly-balance.model';
+import { MonthylIncomeExpense } from '../../models/monthly-income-expense.model';
+import { DailyExpenseAverage } from '../../models/daily-expense-average.model';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   addTransactionDialogVisible = false;
   newTransaction: Transaction = {
     id: '',
@@ -35,14 +42,22 @@ export class HomeComponent {
   currentUser: User;
   userCurrency: Currency;
 
+  financialSummary: FinancialSummary;
+  summaryLoading = false;
 
-  barStatsLoading = false;
-  barStat1: {statId: number, result: number, desc: string } = { statId: 1, result: 3200, desc: 'Income'}
-  barStat2: {statId: number, result: number, desc: string} = { statId: 14, result: 2100, desc: 'Expenses' }
-  barStat3: {statId: number, result: number, desc: string} = { statId: 5, result: 110, desc: 'Savings' }
-  barStat4: {statId: number, result: number, desc: string} = { statId: 12, result: 34, desc: 'Savings Rate' }
+  topExpenseCategories: ExpenseCategorySummary[] = [];
+  catData: any;
+  catOptions: any;
 
-salesTotalsLoading = false;
+  monthlyBalanceTrend: MonthlyBalance[] = [];
+  monthlyIncomeExpense: MonthylIncomeExpense[] = [];
+  dailyExpenseAverage: DailyExpenseAverage;
+  dailyExpenses: DailyExpense[] = [];
+
+  lastTransactions: Transaction[] = [];
+  lastTransactionsLoading = false;
+
+  salesTotalsLoading = false;
   totalsDashboardData: {
     index: number,
     chartTitle: string,
@@ -51,35 +66,13 @@ salesTotalsLoading = false;
     tableTitle: string,
     tableData: any,
     tableColumns: string[]
-  };
+  }[] = [];
 
-  customersLoading = false;
-  customers: {
-    customerId: string,
-    customerName: string,
-    customerNo: string,
-    address: string,
-    balanceDoe: number
-    } [] = [];
-
-    transactionsLoading = false;
-transactions: {
-    transactionId: string,
-    transactionNo: string,
-    customerName: string,
-    date: Date,
-    time: Date,
-    debit: number,
-    profit: number
-  } [] = [];
-
-departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
-  depData: any;
-  depOptions: any;
-
-  dailySalesTotals: {weekday: string, totalAfterDiscount: number} [] = [];
   dailyData: any;
   dailyOptions: any;
+
+
+
 
   salesTotals: {total: number, trans: number, countDays: number};
   avgAmountStr: string;
@@ -112,7 +105,7 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
     { label: 'Last 365 days', value: 365 },
   ];
   selectedSalesTotalsInterval: number = 60;
-  selectedTransactionsInterval: number = 60;
+  //selectedTransactionsInterval: number = 60;
   selectedStatisticsInterval: number = 60;
 
   totalIncome: number = 3200;
@@ -127,14 +120,6 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
       { label: 'Expense', backgroundColor: '#EF5350', data: [2000, 2200, 2100, 2300] },
     ],
   };
-
-  transactions2 = [
-    { amount: 50, category: 'Food', date: new Date('2025-05-01') },
-    { amount: 100, category: 'Transport', date: new Date('2025-05-02') },
-    { amount: 250, category: 'Rent', date: new Date('2025-05-01') },
-    { amount: 120, category: 'Food', date: new Date('2025-05-03') },
-  ];
-
   totalBalance = 0;
 
   pieChartData: any;
@@ -147,9 +132,11 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
     private categoryService: CategoryService,
     private userService: UserService,
     private authService: AuthService,
+    private dashboardService: DashboardService,
     private currencyService: CurrencyService,
     private transactionService: TransactionService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cdr: ChangeDetectorRef
   ) {
 
   }
@@ -164,7 +151,10 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
 
     await this.loadCategories();
     await this.loadCurrencies();
-    await this.loadTransactions();
+    //await this.loadTransactions();
+
+
+    await this.loadAllDashboardsData();
 
     this.resetTransactionForm();
   }
@@ -180,9 +170,176 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
     this.newTransaction.currencyId = this.userCurrency.id;
   }
 
+  async loadAllDashboardsData() {
+    this.totalsDashboardData = [];
+
+    await this.loadFinancialSummary();
+    await this.loadTopExpenseCategories();
+    await this.loadMonthlyBalanceTrend();
+    await this.loadMonthlyIncomeExpense();
+    await this.loadDailyData();
+    await this.loadLastTransactions();
+  }
+
   async loadTransactions() {
     //this.categories = await this.categoryService.getAll();
   }
+
+  async loadFinancialSummary() {
+    this.summaryLoading = true;
+    this.financialSummary = await this.dashboardService.getFinancialSummary(this.currentUser.id);
+    console.log(this.financialSummary);
+    this.summaryLoading = false;
+  }
+
+  async loadTopExpenseCategories() {
+    this.topExpenseCategories = await this.dashboardService.getTopExpenseCategories(this.currentUser.id, 10);
+    console.log(this.topExpenseCategories);
+
+    this.initCategoriesPie();
+    this.totalsDashboardData.push({
+      index: 0,
+      chartTitle: 'Top Categories',
+      chartData: this.catData,
+      chartOptions: this.catOptions,
+      tableTitle: 'Categories Expenses',
+      tableData: this.topExpenseCategories,
+      tableColumns: ['category', 'total']
+    });
+    this.cdr.detectChanges();
+  }
+
+  async loadMonthlyBalanceTrend() {
+    this.monthlyBalanceTrend = await this.dashboardService.getMonthlyBalanceTrend(this.currentUser.id);
+    console.log(this.monthlyBalanceTrend);
+  }
+
+  async loadMonthlyIncomeExpense() {
+    this.monthlyIncomeExpense = await this.dashboardService.getMonthlyIncomeExpenseTrend(this.currentUser.id, new Date().getFullYear());
+    console.log(this.monthlyIncomeExpense);
+  }
+
+  async loadDailyData() {
+    await this.loadDailyAverageExpenses();
+    await this.loadDailyExpenses();
+    this.initDailyPie();
+
+    this.totalsDashboardData.push({
+      index: 1,
+      chartTitle: 'Daily Expenses',
+      chartData: this.dailyData,
+      chartOptions: this.dailyOptions,
+      tableTitle: 'Daily Expenses',
+      tableData: this.dailyExpenses,
+      tableColumns: ['date', 'total']
+    });
+    this.cdr.detectChanges();
+  }
+
+  async loadDailyAverageExpenses() {
+    this.dailyExpenseAverage = await this.dashboardService.getAverageDailyExpense(this.currentUser.id, 20);
+    console.log(this.dailyExpenseAverage);
+  }
+
+  async loadDailyExpenses() {
+    this.dailyExpenses = await this.dashboardService.getDailyExpenses(this.currentUser.id, 7);
+    console.log(this.dailyExpenses);
+  }
+
+  async loadLastTransactions() {
+    this.lastTransactions = await this.dashboardService.getLastTransactions(this.currentUser.id, 20);
+    console.log(this.lastTransactions);
+  }
+
+
+  async loadTotals(index: number = 0) {
+    this.salesTotalsLoading = true;
+
+    switch (index) {
+        case 0:
+        default:
+            await this.loadTopExpenseCategories();
+        break;
+        case 1:
+            await this.loadDailyData();
+        break;
+        case 2:
+
+        break;
+        case 3:
+
+        break;
+        case 4:
+
+        break;
+    }
+
+    this.salesTotalsLoading = false;
+  }
+
+  initCategoriesPie() {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+
+    let othersSum = 0;
+    for(let catExp of this.topExpenseCategories.slice(5, this.topExpenseCategories.length)) {
+        othersSum += catExp.total;
+    }
+
+    this.catData = {
+        labels: this.topExpenseCategories.slice(0, 5).map(c => c.category).concat('Other'),
+        datasets: [
+            {
+                data: this.topExpenseCategories.slice(0, 5).map(c => c.total).concat(othersSum),
+                backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500'), documentStyle.getPropertyValue('--red-500'), documentStyle.getPropertyValue('--gray-500'), documentStyle.getPropertyValue('--orange-500')],
+                hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400'), documentStyle.getPropertyValue('--red-400'), documentStyle.getPropertyValue('--gray-400'), documentStyle.getPropertyValue('--orange-400')]
+            }
+        ]
+    };
+
+    this.catOptions = {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    usePointStyle: true,
+                    color: textColor
+                }
+            }
+        }
+    };
+  }
+
+  initDailyPie() {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+
+    this.dailyData = {
+        labels: this.dailyExpenses.map(d => d.date),
+        datasets: [
+            {
+                data: this.dailyExpenses.map(d => d.total),
+                backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500'), documentStyle.getPropertyValue('--red-500'), documentStyle.getPropertyValue('--gray-500'), documentStyle.getPropertyValue('--orange-500'), documentStyle.getPropertyValue('--purple-500')],
+                hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400'), documentStyle.getPropertyValue('--red-400'), documentStyle.getPropertyValue('--gray-400'), documentStyle.getPropertyValue('--orange-400'), documentStyle.getPropertyValue('--purple-400')]
+            }
+        ]
+    };
+
+    this.dailyOptions = {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    usePointStyle: true,
+                    color: textColor
+                }
+            }
+        }
+    };
+  }
+
 
   showAddTransactionDialog() {
     this.addTransactionDialogVisible = true;
@@ -208,8 +365,10 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
   async saveTransaction() {
     let success = await this.transactionService.createTransaction(this.newTransaction);
 
-    if(success)
+    if(success) {
+      await this.loadAllDashboardsData();
       this.messageService.add({ severity: 'success', summary: 'Created successfully!', detail: 'New Transaction was created' });
+    }
 
     this.addTransactionDialogVisible = false;
   }
@@ -217,14 +376,14 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
 
 
   calculateBalance() {
-    this.totalBalance = this.transactions2.reduce((a, b) => a + b.amount, 0);
+    this.totalBalance = this.lastTransactions.reduce((a, b) => a + b.amount, 0);
   }
 
   setupPieChart() {
-    const categories = ['Food', 'Transport', 'Rent'];
+    const categories = [1, 2, 15];
     const data = categories.map(cat =>
-      this.transactions2
-        .filter(t => t.category === cat)
+      this.lastTransactions
+        .filter(t => t.categoryId === cat)
         .reduce((sum, t) => sum + t.amount, 0)
     );
 
@@ -240,7 +399,7 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
       labels: Object.keys(groupedByDate),
       datasets: [
         {
-          label: 'Transactions',
+          label: 'Daily Expenses',
           data: Object.values(groupedByDate),
           fill: false,
           borderColor: '#42A5F5',
@@ -280,9 +439,9 @@ departmentSalesTotals: {department: string, totalAfterDiscount: number} [] = [];
 
   groupByDate() {
     const grouped: Record<string, number> = {};
-    this.transactions2.forEach(t => {
+    this.dailyExpenses.forEach(t => {
       const date = new Date(t.date).toLocaleDateString();
-      grouped[date] = (grouped[date] || 0) + t.amount;
+      grouped[date] = (grouped[date] || 0) + t.total;
     });
     return grouped;
   }
