@@ -130,8 +130,6 @@ export class HomeComponent implements OnInit {
 
     await this.loadCategories();
     await this.loadCurrencies();
-    //await this.loadTransactions();
-
 
     await this.loadAllDashboardsData();
 
@@ -158,10 +156,6 @@ export class HomeComponent implements OnInit {
     await this.loadMonthlyIncomeExpense();
     await this.loadDailyData();
     await this.loadLastTransactions();
-  }
-
-  async loadTransactions() {
-    //this.categories = await this.categoryService.getAll();
   }
 
   async loadFinancialSummary() {
@@ -422,6 +416,7 @@ export class HomeComponent implements OnInit {
   }
 
   async saveTransaction() {
+    console.log(this.newTransaction);
     let success = await this.transactionService.createTransaction(this.newTransaction);
 
     if(success) {

@@ -42,7 +42,8 @@
 
     <div class="field">
       <label for="date">Date</label>
-      <p-calendar [(ngModel)]="newTransaction.date" id="date" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+      <!-- <p-calendar [(ngModel)]="newTransaction.date" id="date" [showIcon]="true" [showOnFocus]="false" dateFormat="yy-mm-dd"></p-calendar> -->
+      <p-calendar [(ngModel)]="newTransaction.date" id="date" [showButtonBar]="true" [inline]="true" [showWeek]="true" dateFormat="yy-mm-dd"></p-calendar>
     </div>
 
     <div class="field">
@@ -140,7 +141,7 @@
                         <div class="border-1 surface-border border-round m-2 p-3">
                             <p-skeleton *ngIf="salesTotalsLoading" class="w-full" height="20rem" />
                             <div *ngIf="!salesTotalsLoading" class="w-full flex flex-column">
-                                <div *ngIf="item?.index == 1" class="text-sm">Average expenses per day: <span class="text-sm font-bold text-green-500">${{dailyExpenseAverage?.averageDailyExpense}}</span></div>
+                                <div *ngIf="item?.index == 1" class="text-sm">Average expenses per day: <span class="text-sm font-bold text-green-500">{{dailyExpenseAverage?.averageDailyExpense}}</span></div>
                                 <!-- <div *ngIf="item.index == 1" class="text-sm">Average transactions per day: <span class="text-sm font-bold text-green-500">{{avgTransStr}}</span></div> -->
 
                                 <div class="w-full flex flex-row">
