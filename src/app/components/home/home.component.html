@@ -167,34 +167,10 @@
                     </ng-template>
             </p-carousel>
         </div>
-    </div>
+</div>
 
-<div class="w-full flex flex-wrap justify-content-around">
-        <!--<div class="w-full h-full lg:w-5 xl:w-5 flex flex-wrap justify-content-between mt-4 shadow-1 h-20rem">
-            <p-skeleton *ngIf="customersLoading" class="w-full" height="20rem" />
-
-            <p-table *ngIf="!customersLoading" [value]="customers" class="w-full h-full overflow-auto" [tableStyle]="{ 'width': '100%' }">
-                <ng-template pTemplate="caption"> -->
-                    <!-- <div class="font-medium text-gray-700 text-l"></div> -->
-                    <!-- <div class="flex align-items-center justify-content-between">
-                        Recent Added Customers
-
-                        <p-dropdown [options]="count" [(ngModel)]="selectedCustomerCount" placeholder="Select Count" ></p-dropdown> -->
-                        <!-- <p-button icon="pi pi-refresh"></p-button> -->
-                    <!-- </div>
-                </ng-template>
-                <ng-template pTemplate="body" let-customer>
-                    <tr>
-                        <td>{{ customer.customerName }}</td>
-                        <td>{{ customer.customerNo }}</td>
-                        <td>{{ customer.address }}</td>
-                        <td>{{ customer.balanceDoe }}$</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div> -->
-
-        <div class="w-full h-full lg:w-6 xl:w-6 flex flex-wrap justify-content-between mt-4 shadow-1 h-40rem mb-5">
+<div class="w-full flex flex-wrap justify-content-around">    
+  <div class="w-full h-full lg:w-6 xl:w-6 flex flex-wrap justify-content-between mt-4 shadow-1 h-40rem mb-5">
             <p-skeleton *ngIf="lastTransactionsLoading" class="w-full" height="20rem" />
 
             <p-table *ngIf="!lastTransactionsLoading" [value]="lastTransactions" class="w-full h-full overflow-auto" [tableStyle]="{ 'width': '100%' }">
@@ -211,18 +187,16 @@
                     </div>
                 </ng-template>
                 <ng-template pTemplate="body" let-transaction>
-                    <tr>
+                    <tr [ngStyle]="{ 'background-color': transaction.refs.category.color + '1A'}">
                         <!-- <td>{{ transaction.id }}</td> -->
                         <!-- <td>{{ transaction.userId }}</td> -->
-                        <td>{{ transaction.categoryId }}</td>
-                        <td>{{ transaction.date | date}}</td>
-                        <td>{{ transaction.amount }}$</td>
-                        <td>{{ transaction.currencyId }}</td>
-                        <td>{{ transaction.note }}</td>
+                        <td>{{ transaction.transaction.date | date}}</td>
+                        <td><i class="{{transaction.refs.category.icon}}"></i>   {{ transaction.refs.category.name }}</td>
+                        <td>{{ transaction.transaction.amount }} {{transaction.refs.currency.code}}</td>
                     </tr>
                 </ng-template>
             </p-table>
-        </div>
+  </div>
 </div> 
 
 <div class="w-full flex flex-wrap justify-content-around">

@@ -72,7 +72,7 @@ export class HomeComponent implements OnInit {
   dailyExpenses: DailyExpense[] = [];
   salesTotalsDailyExpenses: DailyExpense[] = [];
 
-  lastTransactions: Transaction[] = [];
+  lastTransactions: {transaction: Transaction, refs: {currency: Currency, category: Category}}[] = [];
   lastTransactionsLoading = false;
 
   salesTotalsLoading = false;
@@ -244,7 +244,24 @@ export class HomeComponent implements OnInit {
   }
 
   async loadLastTransactions() {
-    this.lastTransactions = await this.dashboardService.getLastTransactions(this.currentUser.id, this.selectedTransactionsCount, this.selectedTransactionsInterval);
+    this.lastTransactions = [];
+    let lastTransactionsT: Transaction[] = await this.dashboardService.getLastTransactions(this.currentUser.id, this.selectedTransactionsCount, this.selectedTransactionsInterval);
+    
+    for(let lt of lastTransactionsT)
+    {
+      let category: Category = await this.categoryService.getCategory(lt.categoryId);
+      let currency: Currency = await this.currencyService.getCurrency(lt.currencyId);
+
+      this.lastTransactions.push(
+      {
+        transaction: lt,
+        refs: {
+          category: category,
+          currency: currency
+        }
+      });
+    }
+
   }
 
 
@@ -428,44 +445,4 @@ export class HomeComponent implements OnInit {
     this.addTransactionDialogVisible = false;
   }
 
-
-
-  // calculateBalance() {
-  //   this.totalBalance = this.lastTransactions.reduce((a, b) => a + b.amount, 0);
-  // }
-
-  // setupPieChart() {
-  //   const categories = [1, 2, 15];
-  //   const data = categories.map(cat =>
-  //     this.lastTransactions
-  //       .filter(t => t.categoryId === cat)
-  //       .reduce((sum, t) => sum + t.amount, 0)
-  //   );
-
-  //   this.pieChartData = {
-  //     labels: categories,
-  //     datasets: [{ data, backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'] }]
-  //   };
-  // }
-
-  // setupMonthlySummary() {
-  //   const summary = {
-  //     Jan: 100, Feb: 200, Mar: 300, Apr: 0, May: 500
-  //   };
-
-  //   this.monthlySummaryData = {
-  //     labels: Object.keys(summary),
-  //     datasets: [
-  //       {
-  //         label: 'Amount',
-  //         backgroundColor: '#4CAF50',
-  //         data: Object.values(summary)
-  //       }
-  //     ]
-  //   };
-
-  //   this.barOptions = {
-  //     scales: { y: { beginAtZero: true } }
-  //   };
-  // }
 }
