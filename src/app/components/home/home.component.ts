@@ -48,6 +48,17 @@ export class HomeComponent implements OnInit {
   topExpenseCategories: ExpenseCategorySummary[] = [];
   catData: any;
   catOptions: any;
+  catExpRadarData: any;
+  catExpRadarOptions: any;
+
+
+  monthlyIncomeExpensesData: {
+    labels: any[],
+    datasets: [
+      { label: string, backgroundColor: string, data: any[] },
+      { label: string, backgroundColor: string, data: any[] },
+    ],
+  };
 
   monthlyBalanceTrend: MonthlyBalance[] = [];
   monthlyIncomeExpense: MonthylIncomeExpense[] = [];
@@ -70,19 +81,6 @@ export class HomeComponent implements OnInit {
 
   dailyData: any;
   dailyOptions: any;
-
-
-
-
-  salesTotals: {total: number, trans: number, countDays: number};
-  avgAmountStr: string;
-  avgTransStr: string;
-
-  statisticsLoading = false;
-
-  yearProfit: {month: string, monthName: string, type: string, total: number} [] = [];
-  statisticsData: any;
-  statisticsOptions: any;
 
   count = [
     { label: 'Last 1 item', value: 1 },
@@ -108,20 +106,6 @@ export class HomeComponent implements OnInit {
   //selectedTransactionsInterval: number = 60;
   selectedStatisticsInterval: number = 60;
 
-  totalIncome: number = 3200;
-  totalExpense: number = 2100;
-  savings: number = this.totalIncome - this.totalExpense;
-  savingsRate: number = +(this.savings / this.totalIncome * 100).toFixed(2);
-
-  incomeVsExpenseData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-    datasets: [
-      { label: 'Income', backgroundColor: '#42A5F5', data: [3000, 2800, 3200, 3100] },
-      { label: 'Expense', backgroundColor: '#EF5350', data: [2000, 2200, 2100, 2300] },
-    ],
-  };
-  totalBalance = 0;
-
   pieChartData: any;
   lineChartData: any;
   lineChartOptions: any;
@@ -142,11 +126,6 @@ export class HomeComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.calculateBalance();
-    this.setupPieChart();
-    this.setupLineChart();
-    this.setupMonthlySummary();
-
     this.currentUser = await this.userService.getUser(this.authService.currentUserId);
 
     await this.loadCategories();
@@ -188,13 +167,12 @@ export class HomeComponent implements OnInit {
   async loadFinancialSummary() {
     this.summaryLoading = true;
     this.financialSummary = await this.dashboardService.getFinancialSummary(this.currentUser.id);
-    console.log(this.financialSummary);
     this.summaryLoading = false;
   }
 
   async loadTopExpenseCategories() {
     this.topExpenseCategories = await this.dashboardService.getTopExpenseCategories(this.currentUser.id, 10);
-    console.log(this.topExpenseCategories);
+    this.initCatExpRadar();
 
     this.initCategoriesPie();
     this.totalsDashboardData.push({
@@ -211,17 +189,25 @@ export class HomeComponent implements OnInit {
 
   async loadMonthlyBalanceTrend() {
     this.monthlyBalanceTrend = await this.dashboardService.getMonthlyBalanceTrend(this.currentUser.id);
-    console.log(this.monthlyBalanceTrend);
   }
 
   async loadMonthlyIncomeExpense() {
     this.monthlyIncomeExpense = await this.dashboardService.getMonthlyIncomeExpenseTrend(this.currentUser.id, new Date().getFullYear());
     console.log(this.monthlyIncomeExpense);
+
+    this.monthlyIncomeExpensesData = {
+    labels: this.monthlyIncomeExpense.map(m => m.month),
+    datasets: [
+      { label: 'Income', backgroundColor: '#42A5F5', data: this.monthlyIncomeExpense.map(m => m.income) },
+      { label: 'Expense', backgroundColor: '#EF5350', data: this.monthlyIncomeExpense.map(m => m.expense) },
+    ],
+  };
   }
 
   async loadDailyData() {
     await this.loadDailyAverageExpenses();
     await this.loadDailyExpenses();
+    this.initDailyExpensesLineChart();
     this.initDailyPie();
 
     this.totalsDashboardData.push({
@@ -311,6 +297,47 @@ export class HomeComponent implements OnInit {
     };
   }
 
+  initCatExpRadar() {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+
+    this.catExpRadarData = {
+        labels: this.topExpenseCategories.map(c => c.category),
+        datasets: [
+            {
+                label: 'Latest Expenses',
+                borderColor: documentStyle.getPropertyValue('--pink-200'),
+                pointBackgroundColor: documentStyle.getPropertyValue('--pink-500'),
+                pointBorderColor: documentStyle.getPropertyValue('--pink-400'),
+                pointHoverBackgroundColor: textColor,
+                pointHoverBorderColor: documentStyle.getPropertyValue('--bluegray-400'),
+                data: this.topExpenseCategories.map(c => c.total)
+            },
+        ]
+    };
+    
+    this.catExpRadarOptions = {
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            }
+        },
+        scales: {
+            r: {
+                grid: {
+                    color: textColorSecondary
+                },
+                pointLabels: {
+                    color: textColorSecondary
+                }
+            }
+        }
+    };
+  }
+
   initDailyPie() {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
@@ -338,6 +365,38 @@ export class HomeComponent implements OnInit {
             }
         }
     };
+  }
+
+  initDailyExpensesLineChart() {
+    const groupedByDate = this.groupByDate();
+    this.lineChartData = {
+      labels: Object.keys(groupedByDate),
+      datasets: [
+        {
+          label: 'Daily Expenses',
+          data: Object.values(groupedByDate),
+          fill: false,
+          borderColor: '#42A5F5',
+          tension: 0.4
+        }
+      ]
+    };
+
+    this.lineChartOptions = {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    };
+  }
+
+  groupByDate() {
+    const grouped: Record<string, number> = {};
+    this.dailyExpenses.sort((e1, e2) => new Date(e1.date).getTime() - new Date(e2.date).getTime()).forEach(t => {
+      const date = new Date(t.date).toLocaleDateString();
+      grouped[date] = (grouped[date] || 0) + t.total;
+    });
+    return grouped;
   }
 
 
@@ -375,74 +434,42 @@ export class HomeComponent implements OnInit {
 
 
 
-  calculateBalance() {
-    this.totalBalance = this.lastTransactions.reduce((a, b) => a + b.amount, 0);
-  }
+  // calculateBalance() {
+  //   this.totalBalance = this.lastTransactions.reduce((a, b) => a + b.amount, 0);
+  // }
 
-  setupPieChart() {
-    const categories = [1, 2, 15];
-    const data = categories.map(cat =>
-      this.lastTransactions
-        .filter(t => t.categoryId === cat)
-        .reduce((sum, t) => sum + t.amount, 0)
-    );
+  // setupPieChart() {
+  //   const categories = [1, 2, 15];
+  //   const data = categories.map(cat =>
+  //     this.lastTransactions
+  //       .filter(t => t.categoryId === cat)
+  //       .reduce((sum, t) => sum + t.amount, 0)
+  //   );
 
-    this.pieChartData = {
-      labels: categories,
-      datasets: [{ data, backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'] }]
-    };
-  }
+  //   this.pieChartData = {
+  //     labels: categories,
+  //     datasets: [{ data, backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'] }]
+  //   };
+  // }
 
-  setupLineChart() {
-    const groupedByDate = this.groupByDate();
-    this.lineChartData = {
-      labels: Object.keys(groupedByDate),
-      datasets: [
-        {
-          label: 'Daily Expenses',
-          data: Object.values(groupedByDate),
-          fill: false,
-          borderColor: '#42A5F5',
-          tension: 0.4
-        }
-      ]
-    };
+  // setupMonthlySummary() {
+  //   const summary = {
+  //     Jan: 100, Feb: 200, Mar: 300, Apr: 0, May: 500
+  //   };
 
-    this.lineChartOptions = {
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true }
-      }
-    };
-  }
+  //   this.monthlySummaryData = {
+  //     labels: Object.keys(summary),
+  //     datasets: [
+  //       {
+  //         label: 'Amount',
+  //         backgroundColor: '#4CAF50',
+  //         data: Object.values(summary)
+  //       }
+  //     ]
+  //   };
 
-  setupMonthlySummary() {
-    const summary = {
-      Jan: 100, Feb: 200, Mar: 300, Apr: 0, May: 500
-    };
-
-    this.monthlySummaryData = {
-      labels: Object.keys(summary),
-      datasets: [
-        {
-          label: 'Amount',
-          backgroundColor: '#4CAF50',
-          data: Object.values(summary)
-        }
-      ]
-    };
-
-    this.barOptions = {
-      scales: { y: { beginAtZero: true } }
-    };
-  }
-
-  groupByDate() {
-    const grouped: Record<string, number> = {};
-    this.dailyExpenses.forEach(t => {
-      const date = new Date(t.date).toLocaleDateString();
-      grouped[date] = (grouped[date] || 0) + t.total;
-    });
-    return grouped;
-  }
+  //   this.barOptions = {
+  //     scales: { y: { beginAtZero: true } }
+  //   };
+  // }
 }
