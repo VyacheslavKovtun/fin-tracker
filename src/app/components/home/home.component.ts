@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Category } from '../../models/category.model';
 import { Transaction } from '../../models/transaction.model';
@@ -19,6 +19,7 @@ import { ExpenseCategorySummary } from '../../models/expense-category-summary.mo
 import { MonthlyBalance } from '../../models/monthly-balance.model';
 import { MonthylIncomeExpense } from '../../models/monthly-income-expense.model';
 import { DailyExpenseAverage } from '../../models/daily-expense-average.model';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +27,7 @@ import { DailyExpenseAverage } from '../../models/daily-expense-average.model';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
+  isMobile: boolean = false;
   addTransactionDialogVisible = false;
   newTransaction: Transaction = {
     id: '',
@@ -45,6 +47,7 @@ export class HomeComponent implements OnInit {
   financialSummary: FinancialSummary;
   summaryLoading = false;
 
+  salesTotalsTopExpenseCategories: ExpenseCategorySummary[] = [];
   topExpenseCategories: ExpenseCategorySummary[] = [];
   catData: any;
   catOptions: any;
@@ -60,10 +63,14 @@ export class HomeComponent implements OnInit {
     ],
   };
 
+  monthlyIncomeExpensesYear: number;
+
   monthlyBalanceTrend: MonthlyBalance[] = [];
   monthlyIncomeExpense: MonthylIncomeExpense[] = [];
   dailyExpenseAverage: DailyExpenseAverage;
+
   dailyExpenses: DailyExpense[] = [];
+  salesTotalsDailyExpenses: DailyExpense[] = [];
 
   lastTransactions: Transaction[] = [];
   lastTransactionsLoading = false;
@@ -90,9 +97,9 @@ export class HomeComponent implements OnInit {
     { label: 'Last 50 items', value: 50 },
     { label: 'Last 100 items', value: 100 },
   ];
-  selectedSalesTotalsCount: number = 10;
+  selectedSalesTotalsCount: number = 20;
   selectedCustomerCount: number = 10;
-  selectedTransactionsCount: number = 10;
+  selectedTransactionsCount: number = 20;
 
   intervals = [
     { label: 'Last 7 days', value: 7 },
@@ -103,7 +110,9 @@ export class HomeComponent implements OnInit {
     { label: 'Last 365 days', value: 365 },
   ];
   selectedSalesTotalsInterval: number = 60;
-  //selectedTransactionsInterval: number = 60;
+  selectedDailyExpensesInterval: number = 7;
+  selectedTopCategoriesInterval: number = 30;
+  selectedTransactionsInterval: number = 30;
   selectedStatisticsInterval: number = 60;
 
   pieChartData: any;
@@ -120,12 +129,20 @@ export class HomeComponent implements OnInit {
     private currencyService: CurrencyService,
     private transactionService: TransactionService,
     private messageService: MessageService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+
   ) {
 
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.isMobile = event.target.innerWidth < 768;
+  }
+
   async ngOnInit() {
+    this.isMobile = window.innerWidth < 768;
+
     this.currentUser = await this.userService.getUser(this.authService.currentUserId);
 
     await this.loadCategories();
@@ -165,7 +182,8 @@ export class HomeComponent implements OnInit {
   }
 
   async loadTopExpenseCategories() {
-    this.topExpenseCategories = await this.dashboardService.getTopExpenseCategories(this.currentUser.id, 10);
+    this.salesTotalsTopExpenseCategories = await this.dashboardService.getTopExpenseCategories(this.currentUser.id, this.selectedSalesTotalsCount, this.selectedSalesTotalsInterval);
+    this.topExpenseCategories = await this.dashboardService.getTopExpenseCategories(this.currentUser.id, 20, this.selectedTopCategoriesInterval);
     this.initCatExpRadar();
 
     this.initCategoriesPie();
@@ -175,7 +193,7 @@ export class HomeComponent implements OnInit {
       chartData: this.catData,
       chartOptions: this.catOptions,
       tableTitle: 'Categories Expenses',
-      tableData: this.topExpenseCategories,
+      tableData: this.salesTotalsTopExpenseCategories,
       tableColumns: ['category', 'total']
     });
     this.cdr.detectChanges();
@@ -186,16 +204,16 @@ export class HomeComponent implements OnInit {
   }
 
   async loadMonthlyIncomeExpense() {
-    this.monthlyIncomeExpense = await this.dashboardService.getMonthlyIncomeExpenseTrend(this.currentUser.id, new Date().getFullYear());
-    console.log(this.monthlyIncomeExpense);
+    this.monthlyIncomeExpensesYear = new Date().getFullYear();
+    this.monthlyIncomeExpense = await this.dashboardService.getMonthlyIncomeExpenseTrend(this.currentUser.id, this.monthlyIncomeExpensesYear);
 
     this.monthlyIncomeExpensesData = {
-    labels: this.monthlyIncomeExpense.map(m => m.month),
-    datasets: [
-      { label: 'Income', backgroundColor: '#42A5F5', data: this.monthlyIncomeExpense.map(m => m.income) },
-      { label: 'Expense', backgroundColor: '#EF5350', data: this.monthlyIncomeExpense.map(m => m.expense) },
-    ],
-  };
+      labels: this.monthlyIncomeExpense.map(m => m.month),
+      datasets: [
+        { label: 'Income', backgroundColor: '#42A5F5', data: this.monthlyIncomeExpense.map(m => m.income) },
+        { label: 'Expense', backgroundColor: '#EF5350', data: this.monthlyIncomeExpense.map(m => m.expense) },
+      ],
+    };
   }
 
   async loadDailyData() {
@@ -210,49 +228,33 @@ export class HomeComponent implements OnInit {
       chartData: this.dailyData,
       chartOptions: this.dailyOptions,
       tableTitle: 'Daily Expenses',
-      tableData: this.dailyExpenses,
+      tableData: this.salesTotalsDailyExpenses,
       tableColumns: ['date', 'total']
     });
     this.cdr.detectChanges();
   }
 
   async loadDailyAverageExpenses() {
-    this.dailyExpenseAverage = await this.dashboardService.getAverageDailyExpense(this.currentUser.id, 20);
-    console.log(this.dailyExpenseAverage);
+    this.dailyExpenseAverage = await this.dashboardService.getAverageDailyExpense(this.currentUser.id, 365);
   }
 
   async loadDailyExpenses() {
-    this.dailyExpenses = await this.dashboardService.getDailyExpenses(this.currentUser.id, 7);
-    console.log(this.dailyExpenses);
+    this.salesTotalsDailyExpenses = await this.dashboardService.getDailyExpenses(this.currentUser.id, this.selectedSalesTotalsInterval);
+    this.dailyExpenses = await this.dashboardService.getDailyExpenses(this.currentUser.id, this.selectedDailyExpensesInterval);
   }
 
   async loadLastTransactions() {
-    this.lastTransactions = await this.dashboardService.getLastTransactions(this.currentUser.id, 20);
-    console.log(this.lastTransactions);
+    this.lastTransactions = await this.dashboardService.getLastTransactions(this.currentUser.id, this.selectedTransactionsCount, this.selectedTransactionsInterval);
   }
 
 
-  async loadTotals(index: number = 0) {
+  async loadTotals() {
     this.salesTotalsLoading = true;
 
-    switch (index) {
-        case 0:
-        default:
-            await this.loadTopExpenseCategories();
-        break;
-        case 1:
-            await this.loadDailyData();
-        break;
-        case 2:
+    this.totalsDashboardData = [];
 
-        break;
-        case 3:
-
-        break;
-        case 4:
-
-        break;
-    }
+    await this.loadTopExpenseCategories();
+    await this.loadDailyData();
 
     this.salesTotalsLoading = false;
   }
@@ -416,7 +418,6 @@ export class HomeComponent implements OnInit {
   }
 
   async saveTransaction() {
-    console.log(this.newTransaction);
     let success = await this.transactionService.createTransaction(this.newTransaction);
 
     if(success) {

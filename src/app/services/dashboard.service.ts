@@ -21,10 +21,10 @@ export class DashboardService {
       this.dashboardApiUrl = environment.API_URL + 'dashboard';
     }
 
-    async getFinancialSummary(userId: string) {
+    async getFinancialSummary(userId: string, days: number = 365) {
         try {
           let result = await this.http.get<ResponseResult>
-            (this.dashboardApiUrl + `/financialsummary/${userId}`,
+            (this.dashboardApiUrl + `/financialsummary/${userId}/${days}`,
               { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
       
             if(result.code == ResponseResultCode.Failed)
@@ -43,10 +43,10 @@ export class DashboardService {
         }
     }
 
-    async getTopExpenseCategories(userId: string, topN: number) {
+    async getTopExpenseCategories(userId: string, topN: number, days: number = 30) {
         try {
           let result = await this.http.get<ResponseResult>
-            (this.dashboardApiUrl + `/topexpensecategories/${userId}/${topN}`,
+            (this.dashboardApiUrl + `/topexpensecategories/${userId}/${topN}/${days}`,
               { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
       
             if(result.code == ResponseResultCode.Failed)
@@ -131,7 +131,7 @@ export class DashboardService {
         }
     }
 
-    async getDailyExpenses(userId: string, days: number) {
+    async getDailyExpenses(userId: string, days: number = 14) {
         try {
           let result = await this.http.get<ResponseResult>
             (this.dashboardApiUrl + `/dailyexpenses/${userId}/${days}`,
@@ -153,10 +153,10 @@ export class DashboardService {
         }
     }
 
-    async getLastTransactions(userId: string, count: number) {
+    async getLastTransactions(userId: string, count: number, days: number = 30) {
         try {
           let result = await this.http.get<ResponseResult>
-            (this.dashboardApiUrl + `/lasttransactions/${userId}/${count}`,
+            (this.dashboardApiUrl + `/lasttransactions/${userId}/${count}/${days}`,
               { headers: Utilities.getDefaultHttpHeaders() }).toPromise();
       
             if(result.code == ResponseResultCode.Failed)

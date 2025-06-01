@@ -6,6 +6,17 @@
   min-height: 100vh;
 }
 
+.sticky-add-transaction {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 1rem;
+  background-color: transparent;
+  z-index: 1000;
+}
+
+
 .chart-box {
   padding: 1rem;
   border-radius: 8px;

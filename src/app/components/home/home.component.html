@@ -1,4 +1,6 @@
-<p-button label="Add Transaction" icon="pi pi-plus" (onClick)="showAddTransactionDialog()" class="mb-3"></p-button>
+<div class="sticky-add-transaction">
+  <p-button icon="pi pi-plus" [rounded]="true" (onClick)="showAddTransactionDialog()" class="mb-3"></p-button>
+</div>
 
 <p-dialog 
   header="Add Transaction" 
@@ -28,21 +30,8 @@
       <input pInputText type="number" [(ngModel)]="newTransaction.amount" id="amount" />
     </div>
 
-    <!-- <div class="field">
-      <label for="currency">Currency</label>
-      <p-dropdown 
-        [options]="currencies" 
-        [(ngModel)]="newTransaction.currencyId"
-        optionLabel="name" 
-        optionValue="id"
-        placeholder="Select a currency"
-        id="currency"
-      ></p-dropdown>
-    </div> -->
-
     <div class="field">
       <label for="date">Date</label>
-      <!-- <p-calendar [(ngModel)]="newTransaction.date" id="date" [showIcon]="true" [showOnFocus]="false" dateFormat="yy-mm-dd"></p-calendar> -->
       <p-calendar [(ngModel)]="newTransaction.date" id="date" [showButtonBar]="true" [inline]="true" [showWeek]="true" dateFormat="yy-mm-dd"></p-calendar>
     </div>
 
@@ -118,16 +107,7 @@
         </p-card>
 </div>
 
-<div class="sales-totals-diagrams w-full flex flex-wrap justify-content-around">
-        <!-- <div class="w-full lg:w-5 xl:w-5 flex flex-wrap justify-content-center overflow-auto mt-4 h-30rem">
-            <div class="flex justify-content-between align-items-center w-full">
-                <div class="font-medium text-l">Statistics</div>
-                <p-dropdown [options]="intervals" [(ngModel)]="selectedStatisticsInterval" placeholder="Select Interval" (onChange)="loadStatisticsYearProfit()"></p-dropdown>
-            </div>
-            <p-skeleton *ngIf="statisticsLoading" class="w-full" height="20rem" />
-            <p-chart *ngIf="!statisticsLoading" type="line" [data]="statisticsData" [options]="statisticsOptions" height="20rem" [ngStyle]="{width: '100%'}"></p-chart>
-        </div> -->
-
+<div *ngIf="!isMobile" class="sales-totals-diagrams w-full flex flex-wrap justify-content-around">
         <!-- lg:w-6 xl:w-6 -->
         <div class="w-full flex flex-wrap justify-content-center overflow-auto mt-4 h-33rem">
             <p-carousel *ngIf="totalsDashboardData?.length > 0" [value]="totalsDashboardData" [numVisible]="1" [numScroll]="1" [ngStyle]="{width: '100%'}">
@@ -146,16 +126,16 @@
 
                                 <div class="w-full flex flex-row">
                                     <div class="flex flex-column w-6">
-                                        <div *ngIf="item?.index == 1" class="flex flex-row justify-content-around mt-3">
+                                        <!-- <div *ngIf="item?.index == 1" class="flex flex-row justify-content-around mt-3">
                                             <div class="flex flex-column justify-content-center">
                                                 <div class="font-medium text-center">Transactions</div>
-                                                <div class="font-bold text-center text-green-500">0</div>
-                                            </div>
+                                                <div class="font-bold text-center text-green-500"></div>
+                                            </div> -->
                                             <!-- <div class="flex flex-column">
                                                 <div class="font-medium text-center">Amount</div>
                                                 <div class="font-bold text-center text-green-500">${{salesTotals?.total}}</div>
                                             </div> -->
-                                        </div>
+                                        <!-- </div> -->
 
                                         <div class="flex flex-row justify-content-around mt-3">
                                             <div class="flex flex-column w-6 justify-content-center">
@@ -171,7 +151,7 @@
                                                  <div class="flex align-items-center justify-content-between">
                                                     {{item?.tableTitle}}
                             
-                                                    <p-dropdown [options]="count" [(ngModel)]="selectedSalesTotalsCount" placeholder="Select Count" ></p-dropdown>
+                                                    <p-dropdown [options]="count" [(ngModel)]="selectedSalesTotalsCount" placeholder="Select Count" (onChange)="loadTotals()"></p-dropdown>
                                                 </div>
                                             </ng-template>
                                             <ng-template pTemplate="body" let-row>
@@ -224,10 +204,10 @@
                         Recent Transactions
 
                         <span class="flex gap-5">
-                            <p-dropdown [options]="count" [(ngModel)]="selectedTransactionsCount" placeholder="Select Count" ></p-dropdown>
-                            <!-- <p-dropdown [options]="intervals" [(ngModel)]="selectedTransactionsInterval" placeholder="Select Interval" ></p-dropdown> -->
+                            <p-dropdown [options]="count" [(ngModel)]="selectedTransactionsCount" placeholder="Select Count" (ngModelChange)="loadLastTransactions()"></p-dropdown>
+                            <p-dropdown [options]="intervals" [(ngModel)]="selectedTransactionsInterval" placeholder="Select Interval" (ngModelChange)="loadLastTransactions()"></p-dropdown>
                         </span>
-                        <p-button icon="pi pi-refresh"></p-button>
+                        <p-button icon="pi pi-refresh" (onClick)="loadLastTransactions()"></p-button>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="body" let-transaction>
@@ -248,6 +228,9 @@
 <div class="w-full flex flex-wrap justify-content-around">
   <!-- Income vs Expenses -->
   <div class="col-12 md:col-6">
+    <div class="flex w-full">
+      <p-button icon="pi pi-refresh" (onClick)="loadDailyExpenses()"></p-button>
+    </div>
     <p-card header="Income vs Expense">
       <p-chart type="bar" [data]="monthlyIncomeExpensesData" [options]="barOptions"></p-chart>
     </p-card>
@@ -255,6 +238,11 @@
 
   <!-- Line Chart of Daily Expenses -->
   <div class="col-12 md:col-6">
+    <div class="flex w-full">
+      <p-dropdown [options]="intervals" [(ngModel)]="selectedDailyExpensesInterval" placeholder="Select Interval" (ngModelChange)="loadDailyExpenses()"></p-dropdown>
+
+      <p-button icon="pi pi-refresh" (onClick)="loadDailyExpenses()"></p-button>
+    </div>
     <p-card header="Daily Expenses">
       <p-chart type="line" [data]="lineChartData" [options]="lineChartOptions" />
     </p-card>
@@ -262,6 +250,11 @@
 
   <!-- Top Category Expenses -->
   <div class="col-12 md:col-6">
+    <div class="flex w-full">
+      <p-dropdown [options]="intervals" [(ngModel)]="selectedTopCategoriesInterval" placeholder="Select Interval" (ngModelChange)="loadTopExpenseCategories()"></p-dropdown>
+
+      <p-button icon="pi pi-refresh" (onClick)="loadTopExpenseCategories()"></p-button>
+    </div>
     <p-card header="Full Category Expenses">
       <p-chart type="radar" [data]="catExpRadarData" [options]="catExpRadarOptions" />
     </p-card>
