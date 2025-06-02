@@ -7,7 +7,7 @@ import { CategoryService } from '../../services/category.service';
 import { CurrencyService } from '../../services/currency.service';
 import { TransactionService } from '../../services/transaction.service';
 import { Currency } from '../../models/currency.model';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -141,6 +141,7 @@ export class HomeComponent implements OnInit {
     private currencyService: CurrencyService,
     private transactionService: TransactionService,
     private messageService: MessageService,
+    private confirmationService: ConfirmationService,
     private cdr: ChangeDetectorRef,
 
   ) {
@@ -483,15 +484,37 @@ export class HomeComponent implements OnInit {
     this.showAddTransactionDialog();
   }
 
-  async deleteTransaction() {
+  async deleteTransactionConfirm(event: Event) {
     if (!this.selectedTransaction) return;
 
     this.editMode = false;
-    let res = await this.transactionService.deleteTransaction(this.selectedTransaction.id);
 
-    await this.loadAllDashboardsData();
-    this.addTransactionDialogVisible = false;
-    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Transaction removed.' });
+    this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Do you want to delete this transaction?',
+        header: 'Delete Confirmation',
+        icon: 'pi pi-info-circle',
+        acceptButtonStyleClass:"p-button-danger p-button-text",
+        rejectButtonStyleClass:"p-button-text p-button-text",
+        acceptIcon:"none",
+        rejectIcon:"none",
+        accept: async () => {
+            await this.deleteSelectedTransaction();
+        },
+        reject: () => {
+        }
+    }); 
   }
 
+
+  async deleteSelectedTransaction() {
+    let res = await this.transactionService.deleteTransaction(this.selectedTransaction.id);
+
+    this.addTransactionDialogVisible = false;
+    if(res)
+    {
+      await this.loadAllDashboardsData();
+      this.messageService.add({ severity: 'info', summary: 'Deleted', detail: 'Transaction removed.' });
+    }
+  }
 }

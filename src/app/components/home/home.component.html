@@ -2,6 +2,8 @@
   <p-button icon="pi pi-plus" [rounded]="true" (onClick)="showAddTransactionDialog()" class="mb-3"></p-button>
 </div>
 
+<p-confirmDialog />
+
 <p-dialog 
   header="Add Transaction" 
   [(visible)]="addTransactionDialogVisible" 
@@ -43,7 +45,7 @@
     <div class="flex justify-content-end mt-3">
       <p-button label="Cancel" class="p-button-text mr-2" (onClick)="addTransactionDialogVisible = false"></p-button>
       <p-button label="Save" class="p-button-text mr-2" (onClick)="saveTransaction()" [disabled]="!isTransactionValid()"></p-button>
-      <p-button *ngIf="editMode" label="Delete" icon="pi pi-trash" severity="danger" (onClick)="deleteTransaction()"></p-button>
+      <p-button *ngIf="editMode" label="Delete" icon="pi pi-trash" severity="danger" (onClick)="deleteTransactionConfirm($event)"></p-button>
     </div>
   </div>
 </p-dialog>

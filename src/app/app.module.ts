@@ -11,7 +11,7 @@ import { environment } from '../environments/environment';
 import { HeaderComponent } from './components/header/header.component';
 import { ToastModule } from 'primeng/toast'
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { ErrorComponent } from './components/error/error.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -27,6 +27,7 @@ import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CarouselModule } from 'primeng/carousel';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -92,6 +93,7 @@ export function tokenGetter() {
     SkeletonModule,
     CarouselModule,
     InputTextareaModule,
+    ConfirmDialogModule,
   ],
   providers: [
     JwtHelperService,
@@ -100,7 +102,8 @@ export function tokenGetter() {
       useClass: AuthInterceptor,
       multi: true
     },
-    MessageService
+    MessageService,
+    ConfirmationService
   ],
   bootstrap: [AppComponent]
 })
