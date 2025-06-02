@@ -186,6 +186,7 @@
                             <p-dropdown [options]="count" [(ngModel)]="selectedTransactionsCount" placeholder="Select Count" (ngModelChange)="loadLastTransactions()"></p-dropdown>
                             <p-dropdown [options]="intervals" [(ngModel)]="selectedTransactionsInterval" placeholder="Select Interval" (ngModelChange)="loadLastTransactions()"></p-dropdown>
                         </span>
+                        <p-button label="Export to Excel" icon="pi pi-file-excel" class="p-button-success mr-2" (click)="exportDashboardToExcel(baseLastTransactions)"></p-button>
                         <p-button icon="pi pi-refresh" (onClick)="loadLastTransactions()"></p-button>
                     </div>
                 </ng-template>
@@ -207,6 +208,7 @@
   <!-- Income vs Expenses -->
   <div class="col-12 md:col-6">
     <div class="flex w-full">
+        <p-button label="Export to Excel" icon="pi pi-file-excel" class="p-button-success mr-2" (click)="exportDashboardToExcel(monthlyIncomeExpense)"></p-button>
       <p-button icon="pi pi-refresh" (onClick)="loadMonthlyIncomeExpense()"></p-button>
     </div>
     <p-card header="Income vs Expense">
@@ -217,7 +219,9 @@
   <!-- Line Chart of Daily Expenses -->
   <div class="col-12 md:col-6">
     <div class="flex w-full">
-      <p-dropdown [options]="intervals" [(ngModel)]="selectedDailyExpensesInterval" placeholder="Select Interval" (ngModelChange)="loadDailyExpenses()"></p-dropdown>
+        <p-button label="Export to Excel" icon="pi pi-file-excel" class="p-button-success mr-2" (click)="exportDashboardToExcel(dailyExpenses)"></p-button>
+
+      <p-dropdown class="mr-2" [options]="intervals" [(ngModel)]="selectedDailyExpensesInterval" placeholder="Select Interval" (ngModelChange)="loadDailyExpenses()"></p-dropdown>
 
       <p-button icon="pi pi-refresh" (onClick)="loadDailyExpenses()"></p-button>
     </div>
@@ -229,7 +233,9 @@
   <!-- Top Category Expenses -->
   <div class="col-12 md:col-6">
     <div class="flex w-full">
-      <p-dropdown [options]="intervals" [(ngModel)]="selectedTopCategoriesInterval" placeholder="Select Interval" (ngModelChange)="loadTopExpenseCategories()"></p-dropdown>
+        <p-button label="Export to Excel" icon="pi pi-file-excel" class="p-button-success mr-2" (click)="exportDashboardToExcel(topExpenseCategories)"></p-button>
+
+      <p-dropdown class="mr-2" [options]="intervals" [(ngModel)]="selectedTopCategoriesInterval" placeholder="Select Interval" (ngModelChange)="loadTopExpenseCategories()"></p-dropdown>
 
       <p-button icon="pi pi-refresh" (onClick)="loadTopExpenseCategories()"></p-button>
     </div>

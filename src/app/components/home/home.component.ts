@@ -19,7 +19,8 @@ import { ExpenseCategorySummary } from '../../models/expense-category-summary.mo
 import { MonthlyBalance } from '../../models/monthly-balance.model';
 import { MonthylIncomeExpense } from '../../models/monthly-income-expense.model';
 import { DailyExpenseAverage } from '../../models/daily-expense-average.model';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-home',
@@ -85,6 +86,7 @@ export class HomeComponent implements OnInit {
   salesTotalsDailyExpenses: DailyExpense[] = [];
 
   lastTransactions: {transaction: Transaction, refs: {currency: Currency, category: Category}}[] = [];
+  baseLastTransactions: {id: string, date: Date, amount: number, category: string, currency: string, notes?: string}[] = [];
   lastTransactionsLoading = false;
 
   salesTotalsLoading = false;
@@ -260,12 +262,23 @@ export class HomeComponent implements OnInit {
 
   async loadLastTransactions() {
     this.lastTransactions = [];
-    let lastTransactionsT: Transaction[] = await this.dashboardService.getLastTransactions(this.currentUser.id, this.selectedTransactionsCount, this.selectedTransactionsInterval);
+
+    let lTransactions = await this.dashboardService.getLastTransactions(this.currentUser.id, this.selectedTransactionsCount, this.selectedTransactionsInterval);
     
-    for(let lt of lastTransactionsT)
+    for(let lt of lTransactions)
     {
       let category: Category = await this.categoryService.getCategory(lt.categoryId);
       let currency: Currency = await this.currencyService.getCurrency(lt.currencyId);
+
+      this.baseLastTransactions.push(
+      {
+        id: lt.id,
+        date: lt.date,
+        category: category.name,
+        amount: lt.amount,
+        currency: currency.code,
+        notes: lt.notes
+      });
 
       this.lastTransactions.push(
       {
@@ -506,7 +519,6 @@ export class HomeComponent implements OnInit {
     }); 
   }
 
-
   async deleteSelectedTransaction() {
     let res = await this.transactionService.deleteTransaction(this.selectedTransaction.id);
 
@@ -517,4 +529,16 @@ export class HomeComponent implements OnInit {
       this.messageService.add({ severity: 'info', summary: 'Deleted', detail: 'Transaction removed.' });
     }
   }
+
+  exportDashboardToExcel(data: any) {
+  if (!data) return;
+
+  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+  const workbook: XLSX.WorkBook = { Sheets: { 'Dashboard': worksheet }, SheetNames: ['Dashboard'] };
+
+  const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const fileName = `DashboardExport_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  FileSaver.saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), fileName);
+}
 }
