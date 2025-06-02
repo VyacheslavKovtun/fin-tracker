@@ -28,8 +28,21 @@ export class TransactionService extends BaseApiService {
     return await this.getAll();
   }
 
-  async getTransaction(id: number) {
-    return await this.getById(id);
+  async getTransaction(id: string) {
+    try {
+      let responseResult = await this.http.get<ResponseResult>(this.url + `/${id}`).toPromise();
+  
+      if(responseResult.code == ResponseResultCode.Failed)
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: responseResult.message });
+
+      return responseResult.value;
+    }
+    catch (err) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+      //this.loggerService.error(err.error);
+
+      return null;
+    }
   }
 
   async createTransaction(transaction: Transaction) {
@@ -40,7 +53,20 @@ export class TransactionService extends BaseApiService {
     return await this.update(transaction);
   }
 
-  async deleteTransaction(id: number) {
-    return await this.delete(id);
+  async deleteTransaction(id: string) {
+    try {
+      let responseResult = await this.http.delete<ResponseResult>(this.url + `/delete/${id}`).toPromise();
+  
+      if(responseResult.code == ResponseResultCode.Failed)
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: responseResult.message });
+
+      return responseResult.code == ResponseResultCode.Success;
+    }
+    catch (err) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.message });
+      //this.loggerService.error(err.error);
+
+      return false;
+    }
   }
 }

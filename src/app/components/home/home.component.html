@@ -17,7 +17,7 @@
       <label for="categoryId">Category</label>
       <p-dropdown 
         [options]="categories" 
-        [(ngModel)]="newTransaction.categoryId" 
+        [(ngModel)]="selectedTransaction.categoryId" 
         optionLabel="name" 
         optionValue="id"
         placeholder="Select a category"
@@ -27,22 +27,23 @@
 
     <div class="field">
       <label for="amount">Amount</label>
-      <input pInputText type="number" [(ngModel)]="newTransaction.amount" id="amount" />
+      <input pInputText type="number" [(ngModel)]="selectedTransaction.amount" id="amount" />
     </div>
 
     <div class="field">
       <label for="date">Date</label>
-      <p-calendar [(ngModel)]="newTransaction.date" id="date" [showButtonBar]="true" [inline]="true" [showWeek]="true" dateFormat="yy-mm-dd"></p-calendar>
+      <p-calendar [(ngModel)]="selectedTransaction.date" id="date" [showButtonBar]="true" [inline]="true" [showWeek]="true" dateFormat="yy-mm-dd"></p-calendar>
     </div>
 
     <div class="field">
       <label for="notes">Notes</label>
-      <textarea pInputTextarea [(ngModel)]="newTransaction.notes" id="notes" rows="3"></textarea>
+      <textarea pInputTextarea [(ngModel)]="selectedTransaction.notes" id="notes" rows="3"></textarea>
     </div>
 
     <div class="flex justify-content-end mt-3">
       <p-button label="Cancel" class="p-button-text mr-2" (onClick)="addTransactionDialogVisible = false"></p-button>
-      <p-button label="Save" (onClick)="saveTransaction()" [disabled]="!isTransactionValid()"></p-button>
+      <p-button label="Save" class="p-button-text mr-2" (onClick)="saveTransaction()" [disabled]="!isTransactionValid()"></p-button>
+      <p-button *ngIf="editMode" label="Delete" icon="pi pi-trash" severity="danger" (onClick)="deleteTransaction()"></p-button>
     </div>
   </div>
 </p-dialog>
@@ -187,7 +188,7 @@
                     </div>
                 </ng-template>
                 <ng-template pTemplate="body" let-transaction>
-                    <tr [ngStyle]="{ 'background-color': transaction.refs.category.color + '1A'}">
+                    <tr [ngStyle]="{ 'background-color': transaction.refs.category.color + '1A'}" (click)="editTransaction(transaction.transaction)" style="cursor: pointer;">
                         <!-- <td>{{ transaction.id }}</td> -->
                         <!-- <td>{{ transaction.userId }}</td> -->
                         <td>{{ transaction.transaction.date | date}}</td>

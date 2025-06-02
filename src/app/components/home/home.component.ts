@@ -27,8 +27,19 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
+  editMode: boolean = false;
   isMobile: boolean = false;
+
   addTransactionDialogVisible = false;
+  selectedTransaction: Transaction = {
+    id: '',
+    userId: '',
+    categoryId: 0,
+    amount: 0,
+    currencyId: 0,
+    date: new Date(),
+    notes: ''
+  };
   newTransaction: Transaction = {
     id: '',
     userId: '',
@@ -38,6 +49,7 @@ export class HomeComponent implements OnInit {
     date: new Date(),
     notes: ''
   };
+
   categories: Category[] = [];
   currencies: Currency[] = [];
 
@@ -415,6 +427,10 @@ export class HomeComponent implements OnInit {
 
 
   showAddTransactionDialog() {
+    if (!this.editMode) {
+      this.selectedTransaction = this.newTransaction;
+    }
+
     this.addTransactionDialogVisible = true;
   }
 
@@ -428,22 +444,54 @@ export class HomeComponent implements OnInit {
       date: new Date(),
       notes: ''
     };
+
+    this.editMode = false;
   }
 
   isTransactionValid(): boolean {
-    const t = this.newTransaction;
+    const t = this.selectedTransaction;
     return !!(t.amount && t.categoryId && t.date);
   }
 
   async saveTransaction() {
-    let success = await this.transactionService.createTransaction(this.newTransaction);
+    let normalizedDate = new Date(Date.UTC(this.selectedTransaction.date.getFullYear(), this.selectedTransaction.date.getMonth(), this.selectedTransaction.date.getDate()));
+    let normalizedAmount = this.selectedTransaction.amount.toFixed(2);
+    this.selectedTransaction.date = normalizedDate;
+    this.selectedTransaction.amount = Number.parseFloat(normalizedAmount);
+    
+    let success = false;
+
+    if(this.editMode)
+      success = await this.transactionService.updateTransaction(this.selectedTransaction);
+    else
+      success = await this.transactionService.createTransaction(this.selectedTransaction);
 
     if(success) {
       await this.loadAllDashboardsData();
-      this.messageService.add({ severity: 'success', summary: 'Created successfully!', detail: 'New Transaction was created' });
+      this.messageService.add({ severity: 'success', summary: 'Saved successfully!', detail: 'Transaction was saved' });
     }
 
     this.addTransactionDialogVisible = false;
+  }
+
+  editTransaction(transaction: any) {
+    this.resetTransactionForm();
+
+    this.selectedTransaction = transaction;
+    this.selectedTransaction.date = new Date(transaction.date);
+    this.editMode = true;
+    this.showAddTransactionDialog();
+  }
+
+  async deleteTransaction() {
+    if (!this.selectedTransaction) return;
+
+    this.editMode = false;
+    let res = await this.transactionService.deleteTransaction(this.selectedTransaction.id);
+
+    await this.loadAllDashboardsData();
+    this.addTransactionDialogVisible = false;
+    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Transaction removed.' });
   }
 
 }
