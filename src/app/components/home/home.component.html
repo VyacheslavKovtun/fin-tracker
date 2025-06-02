@@ -194,7 +194,8 @@
                         <!-- <td>{{ transaction.id }}</td> -->
                         <!-- <td>{{ transaction.userId }}</td> -->
                         <td>{{ transaction.transaction.date | date}}</td>
-                        <td><i class="{{transaction.refs.category.icon}}"></i>   {{ transaction.refs.category.name }}</td>
+                        <td><i class="{{transaction.refs.category.icon}}"></i></td>
+                        <td>{{ transaction.refs.category.name }}</td>
                         <td>{{ transaction.transaction.amount }} {{transaction.refs.currency.code}}</td>
                     </tr>
                 </ng-template>

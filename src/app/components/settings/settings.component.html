@@ -1,1 +1,31 @@
-<p>settings works!</p>
+
+<div class="login-container">
+  <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+    <!-- <div class="text-center mb-5">
+        <div class="text-900 text-3xl font-medium mb-3">Create a new account</div>
+        <a class="font-medium no-underline ml-2 text-blue-500 cursor-pointer" href="./login">Go back to Login</a>
+    </div> -->
+
+    <form #settingsForm="ngForm">
+        <label for="name1" class="block text-900 font-medium mb-2">Name</label>
+        <input id="name1" [(ngModel)]="currentUser.name" name="uname" required type="text" placeholder="Enter your Name" pInputText class="w-full mb-3">
+
+        <label for="email1" class="block text-900 font-medium mb-2">Email</label>
+        <input id="email1" disabled [(ngModel)]="currentUser.email" email name="email" type="text" pInputText class="w-full mb-3">
+
+        <label for="currency1" class="block text-900 font-medium mb-2">Preferred Currency</label>
+        <p-dropdown
+          id="currency1"
+          [options]="currencies"
+          [(ngModel)]="currentUser.preferredCurrencyCode"
+          name="preferredCurrency"
+          optionLabel="name"
+          optionValue="code"
+          placeholder="Select a currency"
+          class="currencies-dropdown">
+        </p-dropdown>
+
+        <button pButton pRipple label="Save" class="w-full mt-5" [disabled]="!settingsForm.valid" (click)="onSaveClick()"></button>
+    </form>
+  </div>
+</div>

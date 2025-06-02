@@ -1,0 +1,15 @@
+.login-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+::ng-deep .currencies-dropdown .p-dropdown {
+    width: 100%;
+    margin-bottom: 3px;
+
+    .p-password-input {
+        width: 100%;
+    }
+}
